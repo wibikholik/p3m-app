@@ -53,5 +53,23 @@ php artisan migrate
 # 8️⃣ Buat symbolic link untuk upload file (storage)
 php artisan storage:link
 
+(Opsional) Jalankan seeder jika tidak ingin register manual
+Seeder ini akan membuat akun bawaan untuk login ke aplikasi.
+
+php artisan db:seed
+
 # 9️⃣ Jalankan server Laravel
 php artisan serve
+
+Jika kamu menjalankan php artisan db:seed, maka akun berikut otomatis tersedia:
+
+
+Admin P3M	
+email: admin@p3m.com 
+pass: admin123
+Reviewer	
+email: reviewer@p3m.com
+pass: reviewer123
+Dosen		
+email: wibi@p3m.com
+pass: dosen123
