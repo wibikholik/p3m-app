@@ -7,7 +7,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ReviewerController;
 use App\Http\Controllers\DosenController;
 use App\Http\Controllers\Admin\PengumumanController;
-
+use App\Http\Controllers\Admin\KategoriPengumumanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,15 +20,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// 🔹 Redirect otomatis setelah login sesuai role
+// ... (Bagian redirect dan dashboard lainnya biarkan sama) ...
 Route::get('/redirect', function () {
     $user = Auth::user();
-
-    if (!$user) {
-        return redirect('/'); // belum login → balik ke welcome
-    }
-
-    // Redirect sesuai role
+    if (!$user) { return redirect('/'); }
     return match ($user->role) {
         'admin' => redirect()->route('admin.dashboard'),
         'reviewer' => redirect()->route('reviewer.dashboard'),
@@ -36,41 +31,30 @@ Route::get('/redirect', function () {
     };
 })->middleware(['auth', 'verified'])->name('redirect');
 
-// 🔹 Dashboard untuk tiap role (hanya untuk user login & terverifikasi)
 Route::middleware(['auth', 'verified'])->group(function () {
-
-    // Dashboard Admin
-    Route::get('/admin/dashboard', [AdminController::class, 'index'])
-        ->middleware('role:admin')
-        ->name('admin.dashboard');
-
-    // Dashboard Reviewer
-    Route::get('/reviewer/dashboard', [ReviewerController::class, 'index'])
-        ->middleware('role:reviewer')
-        ->name('reviewer.dashboard');
-
-    // Dashboard Dosen (default)
-    Route::get('/dashboard', [DosenController::class, 'index'])
-        ->middleware('role:dosen')
-        ->name('dosen.dashboard');
-
-    // 🔹 Routes bawaan untuk profile
+    Route::get('/admin/dashboard', [AdminController::class, 'index'])->middleware('role:admin')->name('admin.dashboard');
+    Route::get('/reviewer/dashboard', [ReviewerController::class, 'index'])->middleware('role:reviewer')->name('reviewer.dashboard');
+    Route::get('/dashboard', [DosenController::class, 'index'])->middleware('role:dosen')->name('dosen.dashboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-// 🔹 Routes untuk pengumuman (hanya admin)
+
+
+// ======================================================================
+// 🔹 SEMUA RUTE ADMIN DIGABUNGKAN DI SINI (LEBIH BERSIH DAN AMAN) 🔹
+// ======================================================================
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/pengumuman', [PengumumanController::class, 'index'])->name('pengumuman.index');
-    Route::get('/pengumuman/create', [PengumumanController::class, 'create'])->name('pengumuman.create');
-    Route::post('/pengumuman', [PengumumanController::class, 'store'])->name('pengumuman.store');
-    Route::get('/pengumuman/{id}', [PengumumanController::class, 'show'])->name('pengumuman.show');
-    Route::get('/pengumuman/{id}/edit', [PengumumanController::class, 'edit'])->name('pengumuman.edit');
-    Route::put('/pengumuman/{id}', [PengumumanController::class, 'update'])->name('pengumuman.update');
-    Route::delete('/pengumuman/{id}', [PengumumanController::class, 'destroy'])->name('pengumuman.destroy');
+    
+    // Menggunakan Route::resource untuk Kategori (Nama rute: admin.kategori-pengumuman.*)
+    Route::resource('kategori-pengumuman', KategoriPengumumanController::class);
+    
+    // Menggunakan Route::resource untuk Pengumuman (Nama rute: admin.pengumuman.*)
+    Route::resource('pengumuman', PengumumanController::class);
+
 });
 
 
-
-// 🔹 Auth routes (login, register, logout, dll) dari Breeze
+// Auth routes (login, register, logout, dll) dari Breeze
 require __DIR__ . '/auth.php';
+
