@@ -14,7 +14,6 @@
         @include('admin.layouts.navbar')
 
         <main class="flex-1 p-6">
-            <!-- Header Halaman -->
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold text-gray-800">Manajemen Pengumuman</h2>
                 <a href="{{ route('admin.pengumuman.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300">
@@ -22,7 +21,6 @@
                 </a>
             </div>
 
-            <!-- Notifikasi Sukses -->
             @if (session('success'))
                 <div class="mb-4 flex items-center justify-between bg-green-100 border border-green-300 text-green-700 px-4 py-3 rounded relative" role="alert">
                     <div class="flex items-center space-x-2">
@@ -35,21 +33,27 @@
                 </div>
             @endif
 
-            <!-- Tabel Data Pengumuman -->
             <div class="bg-white shadow rounded-lg p-6">
                 <div class="overflow-x-auto">
                     <table class="min-w-full bg-white">
                         <thead class="bg-gray-800 text-white">
                             <tr>
-                                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">No</th>
-                                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Gambar</th>
-                                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Judul</th>
-                                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Kategori</th>
-                                <th class="text-left py-3 px-4 uppercase font-semibold text-sm">Aksi</th>
+                                <th class="py-3 px-4 text-left text-sm font-semibold uppercase">No</th>
+                                <th class="py-3 px-4 text-left text-sm font-semibold uppercase">Gambar</th>
+                                <th class="py-3 px-4 text-left text-sm font-semibold uppercase">Judul</th>
+                                <th class="py-3 px-4 text-left text-sm font-semibold uppercase">Kategori</th>
+                                <th class="py-3 px-4 text-left text-sm font-semibold uppercase">Periode</th>
+                                <th class="py-3 px-4 text-left text-sm font-semibold uppercase">Status</th>
+                                <th class="py-3 px-4 text-left text-sm font-semibold uppercase">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="text-gray-700">
                             @forelse ($pengumuman as $item)
+                                @php
+                                    $now = now();
+                                    $isAktif = $item->tanggal_mulai && $item->tanggal_akhir 
+                                        && $now->between($item->tanggal_mulai, $item->tanggal_akhir);
+                                @endphp
                                 <tr class="border-b hover:bg-gray-50">
                                     <td class="py-3 px-4">{{ $loop->iteration }}</td>
                                     <td class="py-3 px-4">
@@ -59,8 +63,23 @@
                                             <span class="text-gray-400 italic">Tidak ada</span>
                                         @endif
                                     </td>
-                                    <td class="py-3 px-4">{{ $item->judul }}</td>
+                                    <td class="py-3 px-4 font-medium text-gray-800">{{ $item->judul }}</td>
                                     <td class="py-3 px-4">{{ $item->kategori->nama_kategori ?? 'Tidak ada kategori' }}</td>
+                                    <td class="py-3 px-4">
+                                        @if ($item->tanggal_mulai && $item->tanggal_akhir)
+                                            {{ \Carbon\Carbon::parse($item->tanggal_mulai)->format('d M Y') }} -
+                                            {{ \Carbon\Carbon::parse($item->tanggal_akhir)->format('d M Y') }}
+                                        @else
+                                            <span class="text-gray-400 italic">Tidak ditentukan</span>
+                                        @endif
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        @if ($isAktif)
+                                            <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-sm font-semibold">Aktif</span>
+                                        @else
+                                            <span class="bg-gray-200 text-gray-600 px-2 py-1 rounded text-sm font-semibold">Tidak Aktif</span>
+                                        @endif
+                                    </td>
                                     <td class="py-3 px-4">
                                         <div class="flex items-center space-x-2">
                                             <a href="{{ route('admin.pengumuman.edit', $item->id) }}" class="bg-yellow-500 text-white px-3 py-1 rounded text-sm hover:bg-yellow-600 transition duration-300">Edit</a>
@@ -74,23 +93,14 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="text-center py-6 text-gray-500">
-                                        Belum ada data pengumuman.
-                                    </td>
+                                    <td colspan="7" class="text-center py-6 text-gray-500">Belum ada data pengumuman.</td>
                                 </tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
-                 <!-- Paginasi -->
-                 <!-- <div class="mt-4">
-                    {{-- Pastikan controller Anda menggunakan ->paginate() untuk ini berfungsi --}}
-                    {{-- {{ $pengumuman->links() }} --}}
-                </div> -->
             </div>
         </main>
     </div>
-
 </body>
 </html>
-

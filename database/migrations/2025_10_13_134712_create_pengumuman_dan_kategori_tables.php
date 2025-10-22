@@ -30,6 +30,7 @@ return new class extends Migration
                   ->onDelete('set null');
             $table->date('tanggal_mulai')->nullable();
             $table->date('tanggal_akhir')->nullable();
+            $table->string('status')->default('Tidak Aktif');
             $table->timestamps();
         });
     }

@@ -14,7 +14,6 @@
         @include('admin.layouts.navbar')
 
         <main class="flex-1 p-6">
-            <!-- Header Halaman -->
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold text-gray-800">Edit Pengumuman</h2>
                 <a href="{{ route('admin.pengumuman.index') }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded transition duration-300">
@@ -22,12 +21,10 @@
                 </a>
             </div>
 
-            <!-- Notifikasi Error Validasi -->
             @if ($errors->any())
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-                    <strong class="font-bold">Whoops!</strong>
-                    <span class="block sm:inline">Ada beberapa masalah dengan input Anda.</span>
-                    <ul class="list-disc list-inside mt-2">
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                    <strong>Terjadi kesalahan!</strong>
+                    <ul class="mt-2 list-disc list-inside">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
                         @endforeach
@@ -35,59 +32,60 @@
                 </div>
             @endif
 
-            <!-- Konten Form -->
             <div class="bg-white shadow rounded-lg p-6">
                 <form action="{{ route('admin.pengumuman.update', $pengumuman->id) }}" method="POST" enctype="multipart/form-data">
                     @csrf
-                    @method('PUT') {{-- Metode untuk update --}}
-                    
-                    <!-- Judul -->
+                    @method('PUT')
+
                     <div class="mb-4">
                         <label for="judul" class="block text-gray-700 text-sm font-bold mb-2">Judul:</label>
-                        <input type="text" name="judul" id="judul" value="{{ $pengumuman->judul }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+                        <input type="text" name="judul" id="judul" value="{{ old('judul', $pengumuman->judul) }}" class="shadow border rounded w-full py-2 px-3 text-gray-700" required>
                     </div>
 
-                    <!-- Kategori -->
                     <div class="mb-4">
                         <label for="kategori_id" class="block text-gray-700 text-sm font-bold mb-2">Kategori:</label>
-                        <select name="kategori_id" id="kategori_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        <select name="kategori_id" id="kategori_id" class="shadow border rounded w-full py-2 px-3 text-gray-700">
                             <option value="">Pilih Kategori</option>
                             @foreach($kategori as $item)
-                                <option value="{{ $item->id }}" {{ $pengumuman->kategori_id == $item->id ? 'selected' : '' }}>
+                                <option value="{{ $item->id }}" {{ old('kategori_id', $pengumuman->kategori_id) == $item->id ? 'selected' : '' }}>
                                     {{ $item->nama_kategori }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
 
-                    <!-- Isi Pengumuman -->
                     <div class="mb-4">
                         <label for="isi" class="block text-gray-700 text-sm font-bold mb-2">Isi Pengumuman:</label>
-                        <textarea name="isi" id="isi" rows="10" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>{{ $pengumuman->isi }}</textarea>
+                        <textarea name="isi" id="isi" rows="10" class="shadow border rounded w-full py-2 px-3 text-gray-700" required>{{ old('isi', $pengumuman->isi) }}</textarea>
                     </div>
 
-                    <!-- Upload Gambar -->
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label for="tanggal_mulai" class="block text-gray-700 text-sm font-bold mb-2">Tanggal Mulai:</label>
+                            <input type="date" name="tanggal_mulai" id="tanggal_mulai" value="{{ old('tanggal_mulai', $pengumuman->tanggal_mulai) }}" class="shadow border rounded w-full py-2 px-3 text-gray-700">
+                        </div>
+                        <div>
+                            <label for="tanggal_akhir" class="block text-gray-700 text-sm font-bold mb-2">Tanggal Akhir:</label>
+                            <input type="date" name="tanggal_akhir" id="tanggal_akhir" value="{{ old('tanggal_akhir', $pengumuman->tanggal_akhir) }}" class="shadow border rounded w-full py-2 px-3 text-gray-700">
+                        </div>
+                    </div>
+
                     <div class="mb-4">
-                        <label for="gambar" class="block text-gray-700 text-sm font-bold mb-2">Ganti Gambar (Opsional):</label>
-                        @if($pengumuman->gambar)
-                            <div class="mb-2">
-                                <img src="{{ asset('storage/' . $pengumuman->gambar) }}" alt="Gambar saat ini" class="h-32 w-auto object-cover rounded">
-                                <p class="text-xs text-gray-500 mt-1">Gambar saat ini.</p>
-                            </div>
+                        <label for="gambar" class="block text-gray-700 text-sm font-bold mb-2">Gambar (Opsional):</label>
+                        @if ($pengumuman->gambar)
+                            <img src="{{ asset('storage/' . $pengumuman->gambar) }}" alt="Gambar Pengumuman" class="h-24 mb-2 rounded">
                         @endif
-                        <input type="file" name="gambar" id="gambar" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        <input type="file" name="gambar" id="gambar" class="shadow border rounded w-full py-2 px-3 text-gray-700">
                     </div>
 
-                    <!-- Tombol Aksi -->
-                    <div class="flex items-center justify-end">
-                        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300">
-                            Update Pengumuman
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                            Perbarui Pengumuman
                         </button>
                     </div>
                 </form>
             </div>
         </main>
     </div>
-
 </body>
 </html>

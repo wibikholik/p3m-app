@@ -4,42 +4,54 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pengumuman;
-use App\Models\KategoriPengumuman; // Import model Kategori
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class PengumumanController extends Controller
 {
     /**
-     * Menampilkan daftar pengumuman dengan paginasi dan relasi.
-     * Eager loading 'kategori' untuk menghindari N+1 problem.
+     * Menampilkan daftar semua pengumuman.
      */
     public function index()
     {
-        $pengumuman = Pengumuman::with('kategori')->latest()->paginate(10);
+        // Update otomatis status pengumuman berdasarkan tanggal
+        $today = Carbon::today();
+        $pengumumanList = Pengumuman::all();
+
+        foreach ($pengumumanList as $pengumuman) {
+            if ($pengumuman->tanggal_mulai && $pengumuman->tanggal_akhir) {
+                if ($today->between(Carbon::parse($pengumuman->tanggal_mulai), Carbon::parse($pengumuman->tanggal_akhir))) {
+                    $pengumuman->status = 'Aktif';
+                } else {
+                    $pengumuman->status = 'Tidak Aktif';
+                }
+                $pengumuman->save();
+            }
+        }
+
+        $pengumuman = Pengumuman::latest()->paginate(10);
         return view('admin.pengumuman.index', compact('pengumuman'));
     }
 
     /**
-     * Menampilkan form untuk membuat pengumuman baru.
-     * Mengirimkan data kategori untuk ditampilkan di dropdown.
+     * Form tambah pengumuman.
      */
     public function create()
     {
-        $kategori = KategoriPengumuman::all(); // Ambil semua kategori
+        $kategori = \App\Models\KategoriPengumuman::all();
         return view('admin.pengumuman.create', compact('kategori'));
     }
 
     /**
-     * Menyimpan data pengumuman baru ke database.
+     * Simpan pengumuman baru.
      */
     public function store(Request $request)
     {
-        // Validasi input
         $request->validate([
             'judul' => 'required|string|max:255',
             'isi' => 'required|string',
-            'kategori_id' => 'nullable|exists:kategori_pengumuman,id', // Validasi relasi
+            'kategori_id' => 'nullable|exists:kategori_pengumuman,id',
             'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'tanggal_mulai' => 'nullable|date',
             'tanggal_akhir' => 'nullable|date|after_or_equal:tanggal_mulai',
@@ -47,9 +59,19 @@ class PengumumanController extends Controller
 
         $data = $request->all();
 
-        // Handle upload gambar jika ada
+        // Upload gambar jika ada
         if ($request->hasFile('gambar')) {
             $data['gambar'] = $request->file('gambar')->store('pengumuman-images', 'public');
+        }
+
+        // Tentukan status aktif/tidak aktif berdasarkan periode
+        if (!empty($data['tanggal_mulai']) && !empty($data['tanggal_akhir'])) {
+            $today = Carbon::today();
+            $data['status'] = $today->between(Carbon::parse($data['tanggal_mulai']), Carbon::parse($data['tanggal_akhir']))
+                ? 'Aktif'
+                : 'Tidak Aktif';
+        } else {
+            $data['status'] = 'Tidak Aktif';
         }
 
         Pengumuman::create($data);
@@ -58,71 +80,71 @@ class PengumumanController extends Controller
     }
 
     /**
-     * Menampilkan detail satu pengumuman.
-     * Menggunakan Route Model Binding.
+     * Form edit pengumuman.
      */
-    public function show(Pengumuman $pengumuman)
+    public function edit($id)
     {
-        return view('admin.pengumuman.show', compact('pengumuman'));
+        $pengumuman = Pengumuman::findOrFail($id);
+        $kategori = \App\Models\KategoriPengumuman::all();
+        return view('admin.pengumuman.edit', compact('pengumuman','kategori'));
     }
 
     /**
-     * Menampilkan form untuk mengedit pengumuman.
-     * Menggunakan Route Model Binding dan mengirimkan data kategori.
+     * Proses update pengumuman.
      */
-    public function edit(Pengumuman $pengumuman)
+    public function update(Request $request, $id)
     {
-        $kategori = KategoriPengumuman::all(); // Ambil semua kategori
-        return view('admin.pengumuman.edit', compact('pengumuman', 'kategori'));
-    }
-
-    /**
-     * Memperbarui data pengumuman di database.
-     * Menggunakan Route Model Binding.
-     */
-    public function update(Request $request, Pengumuman $pengumuman)
-    {
-        // Validasi input
         $request->validate([
             'judul' => 'required|string|max:255',
             'isi' => 'required|string',
-            'kategori_id' => 'nullable|exists:kategori_pengumuman,id', // Validasi relasi
+            'kategori_id' => 'nullable|exists:kategori_pengumuman,id',
             'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'tanggal_mulai' => 'nullable|date',
             'tanggal_akhir' => 'nullable|date|after_or_equal:tanggal_mulai',
         ]);
 
+        $pengumuman = Pengumuman::findOrFail($id);
         $data = $request->all();
 
-        // Handle upload gambar baru jika ada
+        // Ganti gambar jika ada upload baru
         if ($request->hasFile('gambar')) {
-            // Hapus gambar lama jika ada
             if ($pengumuman->gambar && Storage::disk('public')->exists($pengumuman->gambar)) {
                 Storage::disk('public')->delete($pengumuman->gambar);
             }
-            // Simpan gambar baru
             $data['gambar'] = $request->file('gambar')->store('pengumuman-images', 'public');
+        } else {
+            $data['gambar'] = $pengumuman->gambar;
+        }
+
+        // Tentukan status aktif/tidak aktif berdasarkan periode
+        if (!empty($data['tanggal_mulai']) && !empty($data['tanggal_akhir'])) {
+            $today = Carbon::today();
+            $data['status'] = $today->between(Carbon::parse($data['tanggal_mulai']), Carbon::parse($data['tanggal_akhir']))
+                ? 'Aktif'
+                : 'Tidak Aktif';
+        } else {
+            $data['status'] = 'Tidak Aktif';
         }
 
         $pengumuman->update($data);
 
-        return redirect()->route('admin.pengumuman.index')->with('success', 'Pengumuman berhasil diperbarui.');
+        return redirect()->route('admin.pengumuman.index')->with('success', 'Pengumuman berhasil diperbarui!');
     }
 
     /**
-     * Menghapus pengumuman dari database.
-     * Menggunakan Route Model Binding.
+     * Hapus pengumuman.
      */
-    public function destroy(Pengumuman $pengumuman)
+    public function destroy($id)
     {
-        // Hapus gambar terkait jika ada
+        $pengumuman = Pengumuman::findOrFail($id);
+
+        // Hapus gambar jika ada
         if ($pengumuman->gambar && Storage::disk('public')->exists($pengumuman->gambar)) {
             Storage::disk('public')->delete($pengumuman->gambar);
         }
 
         $pengumuman->delete();
 
-        // Menggunakan pesan 'success' karena proses berhasil
         return redirect()->route('admin.pengumuman.index')->with('success', 'Pengumuman berhasil dihapus!');
     }
 }
