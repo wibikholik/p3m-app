@@ -74,12 +74,13 @@
                                         @endif
                                     </td>
                                     <td class="py-3 px-4">
-                                        @if ($isAktif)
-                                            <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-sm font-semibold">Aktif</span>
-                                        @else
-                                            <span class="bg-gray-200 text-gray-600 px-2 py-1 rounded text-sm font-semibold">Tidak Aktif</span>
-                                        @endif
-                                    </td>
+    @if ($item->status === 'Aktif')
+        <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-sm font-semibold">Aktif</span>
+    @else
+        <span class="bg-gray-200 text-gray-600 px-2 py-1 rounded text-sm font-semibold">Tidak Aktif</span>
+    @endif
+</td>
+
                                     <td class="py-3 px-4">
                                         <div class="flex items-center space-x-2">
                                             <a href="{{ route('admin.pengumuman.edit', $item->id) }}" class="bg-yellow-500 text-white px-3 py-1 rounded text-sm hover:bg-yellow-600 transition duration-300">Edit</a>
