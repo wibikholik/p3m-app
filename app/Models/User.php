@@ -9,24 +9,25 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $fillable = [
         'name',
         'email',
         'password',
+        'role', // Asumsi Anda sudah punya ini
+        'blocked_at', // Tambahkan ini
     ];
 
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $hidden = [
         'password',
@@ -43,6 +44,18 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'blocked_at' => 'datetime', // Casting agar menjadi objek Carbon
         ];
     }
+
+    /**
+     * Cek apakah user diblokir.
+     *
+     * @return bool
+     */
+    public function isBlocked()
+    {
+        return $this->blocked_at !== null;
+    }
 }
+

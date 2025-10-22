@@ -8,6 +8,7 @@ use App\Http\Controllers\ReviewerController;
 use App\Http\Controllers\DosenController;
 use App\Http\Controllers\Admin\PengumumanController;
 use App\Http\Controllers\Admin\KategoriPengumumanController;
+use App\Http\Controllers\Admin\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,6 +54,15 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('pengumuman', PengumumanController::class);
 
 });
+Route::middleware(['auth', 'verified', 'role:admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::resource('users', UserController::class)->except(['show']);
+
+        Route::post('users/{user}/block', [UserController::class, 'block'])->name('users.block');
+        Route::post('users/{user}/unblock', [UserController::class, 'unblock'])->name('users.unblock');
+    });
 
 
 // Auth routes (login, register, logout, dll) dari Breeze

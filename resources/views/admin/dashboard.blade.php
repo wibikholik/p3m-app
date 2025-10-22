@@ -24,20 +24,40 @@
     </div>
         <main class="flex-1 p-6">
             <h2 class="text-2xl font-bold text-gray-800 mb-6">Dashboard</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white shadow rounded-lg p-6">
-                    <h3 class="text-lg font-semibold">Total Reviewer</h3>
-                    <p class="mt-2 text-2xl font-bold">12</p>
-                </div>
-                <div class="bg-white shadow rounded-lg p-6">
-                    <h3 class="text-lg font-semibold">Laporan Pending</h3>
-                    <p class="mt-2 text-2xl font-bold">5</p>
-                </div>
-                <div class="bg-white shadow rounded-lg p-6">
-                    <h3 class="text-lg font-semibold">Transaksi Hari Ini</h3>
-                    <p class="mt-2 text-2xl font-bold">8</p>
-                </div>
+           <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <!-- Total Reviewer -->
+            <div class="bg-white shadow rounded-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-700">Total Reviewer</h3>
+                <p class="mt-2 text-2xl font-bold text-blue-600">
+                    {{ $totalReviewer ?? 0 }}
+                </p>
             </div>
+
+            <!-- Total Dosen -->
+            <div class="bg-white shadow rounded-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-700">Total Dosen</h3>
+                <p class="mt-2 text-2xl font-bold text-green-600">
+                    {{ $totalDosen ?? 0 }}
+                </p>
+            </div>
+
+            <!-- Pengumuman Aktif -->
+            <div class="bg-white shadow rounded-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-700">Pengumuman Aktif</h3>
+                <p class="mt-2 text-2xl font-bold text-yellow-600">
+                    {{ $pengumuman ?? 0 }}
+                </p>
+            </div>
+
+            <!-- Total Usulan -->
+            <!-- <div class="bg-white shadow rounded-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-700">Total Usulan</h3>
+                <p class="mt-2 text-2xl font-bold text-purple-600">
+                    {{ $totalUsulan ?? 0 }}
+                </p>
+            </div> -->
+        </div>
+
         </main>
     </div>
 
