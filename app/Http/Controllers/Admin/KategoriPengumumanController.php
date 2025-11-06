@@ -74,7 +74,7 @@ class KategoriPengumumanController extends Controller
     {
         $kategoriPengumuman->delete();
 
-        // PERBAIKAN: Mengganti 'admin-kategori-pengumuman.index' menjadi 'admin.kategori-pengumuman.index'
+        
         return redirect()->route('admin.kategori-pengumuman.index')
                          ->with('success', 'Kategori berhasil dihapus.');
     }
