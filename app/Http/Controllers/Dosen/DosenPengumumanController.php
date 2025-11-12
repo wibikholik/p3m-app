@@ -16,7 +16,7 @@ class DosenPengumumanController extends Controller
         $query = Pengumuman::with('kategori')->latest();
 
         if ($request->kategori) {
-            $query->where('id_kategori', $request->kategori);
+            $query->where('id', $request->kategori);
         }
 
         $pengumuman = $query->paginate(6);

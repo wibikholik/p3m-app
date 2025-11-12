@@ -1,36 +1,32 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Dosen Dashboard')</title>
+    <title>@yield('title', 'Dashboard Dosen P3M')</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 flex">
+<body class="bg-gray-100 flex min-h-screen">
 
     {{-- Sidebar --}}
     @include('dosen.layouts.sidebar')
 
-    <div class="flex-1 flex flex-col min-h-screen ml-64">
+    {{-- Bagian kanan (konten utama + navbar + footer) --}}
+    <div class="flex-1 flex flex-col ml-64">
+
         {{-- Navbar --}}
         @include('dosen.layouts.navbar')
 
-        {{-- Main Content --}}
+        {{-- Konten Utama --}}
         <main class="flex-1 p-6">
-            {{-- Notifikasi Success/Error --}}
-            @if(session('success'))
-                <div class="mb-4 p-4 bg-green-100 text-green-800 rounded">
-                    {{ session('success') }}
-                </div>
-            @endif
-            @if(session('error'))
-                <div class="mb-4 p-4 bg-red-100 text-red-800 rounded">
-                    {{ session('error') }}
-                </div>
-            @endif
-
             @yield('content')
         </main>
+
+        {{-- Footer --}}
+        @include('dosen.layouts.footer')
+
+        @stack('scripts')
     </div>
+
 </body>
 </html>

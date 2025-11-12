@@ -50,7 +50,7 @@
         </button>
         <!-- Dropdown Menu Penelitian -->
         <div x-show="openPenelitian" x-cloak class="pl-8 space-y-1">
-            <a href="#" class="block py-2 px-4 text-gray-600 hover:bg-gray-200 rounded">Daftar Penelitian</a>
+            <a href="{{ route('dosen.usulan.index') }}" class="block py-2 px-4 text-gray-600 hover:bg-gray-200 rounded">Daftar Usulan</a>
             <a href="#" class="block py-2 px-4 text-gray-600 hover:bg-gray-200 rounded">Daftar Pengabdian</a>
         </div>
         

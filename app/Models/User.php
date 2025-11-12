@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+
 
 class User extends Authenticatable
 {
@@ -20,8 +21,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role', // Asumsi Anda sudah punya ini
-        'blocked_at', // Tambahkan ini
+        'nidn',                 // <-- TAMBAHKAN INI
+        'jabatan_akademik_id',  // <-- TAMBAHKAN INI
+        'role',
+        'blocked_at',           // <-- (Tambahkan juga 'role' jika ada)
     ];
 
     /**
@@ -35,27 +38,24 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * The attributes that should be cast.
      *
-     * @return array<string, string>
+     * @var array<string, string>
      */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'blocked_at' => 'datetime', // Casting agar menjadi objek Carbon
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed', // (Gunakan 'hashed' jika di Laravel 10+)
+    ];
+
+    // ===================================================================
+    // TAMBAHKAN FUNGSI RELASI DI BAWAH INI
+    // ===================================================================
 
     /**
-     * Cek apakah user diblokir.
-     *
-     * @return bool
+     * Mendapatkan data jabatan akademik user.
      */
-    public function isBlocked()
+    public function jabatanAkademik()
     {
-        return $this->blocked_at !== null;
+        return $this->belongsTo(JabatanAkademik::class);
     }
 }
-
