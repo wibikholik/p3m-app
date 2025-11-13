@@ -224,7 +224,7 @@ class UsulanController extends Controller
         $usulan = Usulan::where('id', $id)
                         ->where('id_dosen', auth()->id())
                         ->where('status', 'Draft')
-                        ->firstOrFail();
+                        ->firstOrFail(); // Error 404 jika tidak ditemukan/tidak diizinkan 
 
         // 2. Validasi (Sama seperti store, tapi file_proposal boleh 'nullable')
         $request->validate([
