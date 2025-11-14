@@ -58,4 +58,9 @@ class User extends Authenticatable
     {
         return $this->belongsTo(JabatanAkademik::class);
     }
+    public function isBlocked()
+{
+    return !is_null($this->blocked_at);
+}
+
 }
