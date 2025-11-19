@@ -156,6 +156,8 @@
                                     <div>
                                         <p class="text-sm font-medium text-gray-900">{{ $agt->nama }}</p>
                                         <p class="text-xs text-gray-500">{{ $agt->jabatan ?? 'Anggota' }}</p>
+                                        <hr>    
+                                        <p class="text-xs text-gray-500">{{ $agt->peran ?? 'Anggota' }}</p>
                                     </div>
                                 </li>
                             @endforeach

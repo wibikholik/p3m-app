@@ -20,6 +20,7 @@ return new class extends Migration
         $table->string('nama');
         $table->string('nidn')->nullable();
         $table->string('jabatan')->nullable(); // Jabatan Akademik saat usulan dibuat
+         $table->string('peran');
         $table->timestamps();
     });
 }

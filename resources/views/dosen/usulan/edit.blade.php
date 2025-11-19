@@ -96,8 +96,8 @@
                     <div>
                         <label for="abstrak" class="block text-sm font-medium text-gray-700">Abstrak</label>
                         <textarea name="abstrak" id="abstrak" rows="5" 
-                                  class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md p-2 border" 
-                                  required>{{ old('abstrak', $usulan->abstrak) }}</textarea>
+                                     class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md p-2 border" 
+                                     required>{{ old('abstrak', $usulan->abstrak) }}</textarea>
                     </div>
 
                     {{-- Upload File --}}
@@ -132,7 +132,7 @@
                     {{-- Anggota Section --}}
                     <div>
                         <h3 class="text-lg font-medium leading-6 text-gray-900 mb-2">Anggota Tim</h3>
-                        <p class="text-sm text-gray-500 mb-4">Tambahkan anggota dosen internal. NIDN dan Jabatan akan terisi otomatis.</p>
+                        <p class="text-sm text-gray-500 mb-4">Tambahkan anggota dosen internal. NIDN dan Jabatan akan terisi otomatis, **Peran diisi manual**.</p>
 
                         <div id="anggotas-container" class="space-y-3">
                             {{-- 
@@ -140,7 +140,7 @@
                                 Kita loop data dari DB agar form terisi data lama
                             --}}
                             @foreach($usulan->anggota as $index => $anggota)
-                            <div class="anggota-row flex flex-col sm:flex-row gap-2 items-start sm:items-center bg-gray-50 p-3 rounded border border-gray-200">
+                            <div class="anggota-row flex flex-col sm:flex-row gap-2 items-start sm:items-center bg-gray-50 p-3 rounded border border-gray-200" data-index="{{ $index }}">
                                 <div class="flex-1 w-full">
                                     <select name="anggota[{{ $index }}][nama]" class="select2-anggota w-full border-gray-300 rounded-md" required>
                                         <option value="">-- Cari Nama Anggota --</option>
@@ -157,7 +157,16 @@
                                 
                                 {{-- Input Readonly NIDN & Jabatan --}}
                                 <input type="text" name="anggota[{{ $index }}][nidn]" value="{{ $anggota->nidn }}" placeholder="NIDN" class="nidn-input block w-full sm:w-32 border-gray-300 bg-gray-100 text-gray-500 rounded-md shadow-sm text-sm p-2" readonly>
+                                
                                 <input type="text" name="anggota[{{ $index }}][jabatan]" value="{{ $anggota->jabatan }}" placeholder="Jabatan" class="jabatan-input block w-full sm:w-40 border-gray-300 bg-gray-100 text-gray-500 rounded-md shadow-sm text-sm p-2" readonly>
+
+                                {{-- TAMBAHAN KOLOM PERAN (INPUT MANUAL) --}}
+                                <input type="text" 
+                                       name="anggota[{{ $index }}][peran]" 
+                                       value="{{ $anggota->peran ?? '' }}" 
+                                       placeholder="Peran" 
+                                       required 
+                                       class="block w-full sm:w-40 border-gray-300 bg-white text-gray-700 rounded-md shadow-sm text-sm p-2">
                                 
                                 <button type="button" class="remove-anggota bg-red-100 text-red-600 hover:bg-red-200 p-2 rounded-md transition">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -232,7 +241,7 @@ $(document).ready(function () {
     // 4. Fungsi Tambah Anggota
     $('#tambah-anggota').click(function() {
         let html = `
-            <div class="anggota-row flex flex-col sm:flex-row gap-2 items-start sm:items-center bg-gray-50 p-3 rounded border border-gray-200 mt-2">
+            <div class="anggota-row flex flex-col sm:flex-row gap-2 items-start sm:items-center bg-gray-50 p-3 rounded border border-gray-200 mt-2" data-index="${anggotaIndex}">
                 <div class="flex-1 w-full">
                     <select name="anggota[${anggotaIndex}][nama]" class="select2-anggota w-full border-gray-300 rounded-md" required>
                         ${optionsDosen}
@@ -240,30 +249,61 @@ $(document).ready(function () {
                 </div>
                 <input type="text" name="anggota[${anggotaIndex}][nidn]" placeholder="NIDN" class="nidn-input block w-full sm:w-32 border-gray-300 bg-gray-100 text-gray-500 rounded-md shadow-sm text-sm p-2" readonly>
                 <input type="text" name="anggota[${anggotaIndex}][jabatan]" placeholder="Jabatan" class="jabatan-input block w-full sm:w-40 border-gray-300 bg-gray-100 text-gray-500 rounded-md shadow-sm text-sm p-2" readonly>
+                
+                {{-- TAMBAHAN KOLOM PERAN (INPUT MANUAL) --}}
+                <input type="text" 
+                       name="anggota[${anggotaIndex}][peran]" 
+                       placeholder="Peran (Contoh: Anggota)" 
+                       required 
+                       class="block w-full sm:w-40 border-gray-300 bg-white text-gray-700 rounded-md shadow-sm text-sm p-2">
+
                 <button type="button" class="remove-anggota bg-red-100 text-red-600 hover:bg-red-200 p-2 rounded-md transition">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
         `;
         
-        $('#anggotas-container').append(html);
+        let newRow = $(html);
+        $('#anggotas-container').append(newRow);
         
         // Init Select2 HANYA pada elemen baru
-        initSelect2($('#anggotas-container .anggota-row:last-child .select2-anggota'));
+        initSelect2(newRow.find('.select2-anggota'));
         
         anggotaIndex++;
     });
 
     // 5. Hapus Anggota
     $(document).on('click', '.remove-anggota', function() {
-        $(this).closest('.anggota-row').remove();
+        let row = $(this).closest('.anggota-row');
+        
+        // Cek jika ini adalah baris terakhir (opsional: jika Anda ingin memastikan minimal 1 anggota)
+        if ($('#anggotas-container .anggota-row').length <= 1) {
+            // alert('Minimal harus ada satu anggota peneliti.'); // Gunakan modal kustom jika alert dilarang
+            return;
+        }
+
+        // Hapus Select2 instance sebelum menghapus DOM element
+        row.find('.select2-anggota').select2('destroy');
+        row.remove();
+        
+        // Opsional: Perbarui indeks (penting jika Anda ingin array name selalu berurutan)
+        $('#anggotas-container .anggota-row').each(function(index) {
+            $(this).attr('data-index', index);
+            $(this).find('[name^="anggota"]').each(function() {
+                let currentName = $(this).attr('name');
+                let newName = currentName.replace(/\[\d+\]/, '[' + index + ']');
+                $(this).attr('name', newName);
+            });
+        });
+        
+        anggotaIndex = $('#anggotas-container .anggota-row').length;
     });
 
     // Optional: Tampilkan nama file saat user memilih file baru
     $('#file_usulan').change(function() {
         var fileName = $(this).val().split('\\').pop();
         if(fileName) {
-            $(this).prev('span').text(fileName);
+            $(this).prev('span').text('Ganti file: ' + fileName);
         } else {
             $(this).prev('span').text('Upload file baru');
         }

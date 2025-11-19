@@ -118,51 +118,55 @@
                     <hr class="border-gray-200 my-6">
 
                     {{-- BAGIAN 2: Anggota --}}
-                    <div>
-                        <h3 class="text-lg leading-6 font-medium text-gray-900">Anggota Tim Peneliti</h3>
-                        <p class="mt-1 text-sm text-gray-500">Tambahkan dosen internal yang terlibat. NIDN dan Jabatan akan terisi otomatis saat nama dipilih.</p>
-                        
-                        <div id="anggotas-container" class="mt-4 space-y-3">
-                            {{-- Row Pertama (Wajib Ada) --}}
-                            <div class="anggota-row grid grid-cols-1 md:grid-cols-12 gap-4 items-start bg-gray-50 p-4 rounded-lg border border-gray-200">
-                                <div class="md:col-span-5">
-                                    <label class="block text-xs font-medium text-gray-500 mb-1 md:hidden">Nama Dosen</label>
-                                    <select name="anggota[0][nama]" class="select2-anggota block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" required>
-                                        <option value="">-- Cari Nama Anggota --</option>
-                                        @foreach($dosenList as $dosen)
-                                            <option value="{{ $dosen->name }}" 
-                                                    data-nidn="{{ $dosen->nidn }}" 
-                                                    data-jabatan="{{ $dosen->jabatan_akademik }}">
-                                                {{ $dosen->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="md:col-span-3">
-                                    <label class="block text-xs font-medium text-gray-500 mb-1 md:hidden">NIDN</label>
-                                    <input type="text" name="anggota[0][nidn]" placeholder="NIDN" class="nidn-input block w-full rounded-md border-gray-300 bg-gray-200 text-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" readonly>
-                                </div>
-                                <div class="md:col-span-3">
-                                    <label class="block text-xs font-medium text-gray-500 mb-1 md:hidden">Jabatan</label>
-                                    <input type="text" name="anggota[0][jabatan]" placeholder="Jabatan" class="jabatan-input block w-full rounded-md border-gray-300 bg-gray-200 text-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" readonly>
-                                </div>
-                                <div class="md:col-span-3">
-                                    <label class="block text-xs font-medium text-gray-500 mb-1 md:hidden">Jabatan</label>
-                                    <input type="text" name="anggota[0][jabatan]" placeholder="Jabatan" class="jabatan-input block w-full rounded-md border-gray-300 bg-gray-200 text-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" readonly>
-                                </div>
-                                <div class="md:col-span-1 flex justify-end md:justify-center items-center pt-1">
-                                    <button type="button" class="remove-anggota text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-2 rounded-full transition">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+<div>
+    <h3 class="text-lg leading-6 font-medium text-gray-900">Anggota Tim Peneliti</h3>
+    <p class="mt-1 text-sm text-gray-500">Tambahkan dosen internal yang terlibat. NIDN dan Jabatan akan terisi otomatis saat nama dipilih.</p>
+    
+    <div id="anggotas-container" class="mt-4 space-y-3">
+        {{-- Row Pertama (Wajib Ada) --}}
+        <div class="anggota-row grid grid-cols-1 md:grid-cols-14 gap-4 items-start bg-gray-50 p-4 rounded-lg border border-gray-200" data-index="0">
+            
+            <div class="md:col-span-4">
+                <label for="anggota-nama-0" class="block text-xs font-medium text-gray-500 mb-1 md:hidden">Nama Dosen</label>
+                <select id="anggota-nama-0" name="anggota[0][nama]" class="select2-anggota block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" required>
+                    <option value="">-- Cari Nama Anggota --</option>
+                    @foreach($dosenList as $dosen)
+                        <option value="{{ $dosen->name }}" 
+                                data-nidn="{{ $dosen->nidn }}" 
+                                data-jabatan="{{ $dosen->jabatan_akademik }}">
+                            {{ $dosen->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            
+            <div class="md:col-span-3">
+                <label for="anggota-nidn-0" class="block text-xs font-medium text-gray-500 mb-1 md:hidden">NIDN</label>
+                <input type="text" id="anggota-nidn-0" name="anggota[0][nidn]" placeholder="NIDN" class="nidn-input block w-full rounded-md border-gray-300 bg-gray-200 text-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" readonly>
+            </div>
+            
+            <div class="md:col-span-3">
+                <label for="anggota-jabatan-0" class="block text-xs font-medium text-gray-500 mb-1 md:hidden">Jabatan</label>
+                <input type="text" id="anggota-jabatan-0" name="anggota[0][jabatan]" placeholder="Jabatan" class="jabatan-input block w-full rounded-md border-gray-300 bg-gray-200 text-gray-600 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" readonly>
+            </div>
+            
+            <div class="md:col-span-2">
+                <label for="anggota-peran-0" class="block text-xs font-medium text-gray-500 mb-1 md:hidden">Peran</label>
+                <input type="text" id="anggota-peran-0" name="anggota[0][peran]" placeholder="Peran anggota Contoh: Anggota Peneliti" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" required>
+            </div>
+            <div class="md:col-span-2 flex justify-end md:justify-center items-center pt-1">
+                <button type="button" class="remove-anggota text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-2 rounded-full transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
 
-                        <button type="button" id="tambah-anggota" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-                            Tambah Anggota Lain
-                        </button>
-                    </div>
+    <button type="button" id="tambah-anggota" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+        <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+        Tambah Anggota Lain
+    </button>
+</div>
 
                 </div>
 
@@ -233,7 +237,12 @@ $(document).ready(function () {
                 <div class="md:col-span-3">
                     <label class="block text-xs font-medium text-gray-500 mb-1 md:hidden">Jabatan</label>
                     <input type="text" name="anggota[${anggotaIndex}][jabatan]" placeholder="Jabatan" class="jabatan-input block w-full rounded-md border-gray-300 bg-gray-200 text-gray-600 shadow-sm sm:text-sm" readonly>
+
                 </div>
+                <div class="md:col-span-2">
+                <label for="anggota-peran-${index}" class="block text-xs font-medium text-gray-500 mb-1 md:hidden">Peran</label>
+                <input type="text" id="anggota-peran-${index}" name="anggota[${index}][peran]" placeholder="Contoh: Anggota Peneliti" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" required>
+            </div>
                 <div class="md:col-span-1 flex justify-end md:justify-center items-center pt-1">
                     <button type="button" class="remove-anggota text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-2 rounded-full transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>

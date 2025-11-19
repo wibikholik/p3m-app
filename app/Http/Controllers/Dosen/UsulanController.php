@@ -125,6 +125,7 @@ class UsulanController extends Controller
                         'nama' => $a['nama'],
                         'nidn' => $a['nidn'] ?? null, // Pakai null coalescing operator biar aman
                         'jabatan' => $a['jabatan'] ?? null,
+                        'peran'=>$a['peran']??null,
                     ]);
                 }
             }
@@ -221,6 +222,7 @@ class UsulanController extends Controller
                         'nama' => $a['nama'],
                         'nidn' => $a['nidn'] ?? null,
                         'jabatan' => $a['jabatan'] ?? null,
+                        'peran' => $a['peran'] ?? null,
                     ]);
                  }
             }

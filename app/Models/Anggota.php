@@ -16,6 +16,7 @@ class Anggota extends Model
         'nama',
         'nidn',
         'jabatan',
+        'peran',
     ];
 
     // Relasi Balik ke Usulan
