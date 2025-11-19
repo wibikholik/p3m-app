@@ -26,11 +26,24 @@
 
 <!-- Main CSS File -->
 <link href="assets/css/main.css" rel="stylesheet">
+        <style>
+            /* Semi-transparent header with blur effect (local to this page) */
+            .header.semi-transparent {
+                background-color: rgba(255, 255, 255, 0.55);
+                backdrop-filter: blur(6px);
+                -webkit-backdrop-filter: blur(6px);
+                box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+            }
+            .header.dark.semi-transparent,
+            .header.semi-transparent.dark {
+                background-color: rgba(6, 6, 6, 0.55);
+            }
+        </style>
 </head>
 
 <body class="index-page">
 
-<header id="header" class="header d-flex align-items-center sticky-top">
+<header id="header" class="header semi-transparent d-flex align-items-center sticky-top">
     <div class="container position-relative d-flex align-items-center">
 
     <a href="{{ route('home') }}" class="logo d-flex align-items-center me-auto">
@@ -63,7 +76,7 @@
             <li><a href="{{ route('register') }}">Register</a></li>
             @endif
         @else
-            <li><a href="{{ route('redirect') }}">Dashboard</a></li>
+            <li><a href="{{ route('redirect.role') }}">Dashboard</a></li>
             <li>
             <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
             <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display:none">@csrf</form>
