@@ -31,10 +31,10 @@
             <div id="dropdown" class="absolute right-0 mt-2 w-44 bg-white border rounded shadow-lg hidden">
 
                 <!-- HAK ISTIMEWA: Jika user punya role reviewer -->
-                @if(Auth::user()->hasRole('reviewer'))
-                    <a href="{{ route('reviewer.dashboard') }}"
+                @if(Auth::user()->hasRole('dosen'))
+                    <a href="{{ route('dosen.dashboard') }}"
                        class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-                       Masuk sebagai Reviewer
+                       Masuk sebagai Dosen
                     </a>
                 @endif
 

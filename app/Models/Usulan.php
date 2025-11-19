@@ -9,36 +9,34 @@ class Usulan extends Model
 {
     use HasFactory;
 
-    protected $table = 'usulan';
+    protected $table = 'usulans';
+    
     protected $fillable = [
-        'id_dosen',
+        'id_user',
+        'email_ketua',
         'id_pengumuman',
         'judul',
         'skema',
-        'deskripsi',
-        'tahun_pelaksanaan',
-        'file_lampiran',
-        'status'
+        'abstrak',
+        'file_usulan',
+        'status',
     ];
 
-    public function dosen()
+    // Relasi ke User (Ketua)
+    public function user()
     {
-        return $this->belongsTo(User::class, 'id_dosen');
+        return $this->belongsTo(User::class, 'id_user');
     }
 
+    // Relasi ke Pengumuman
     public function pengumuman()
     {
         return $this->belongsTo(Pengumuman::class, 'id_pengumuman');
     }
 
-    public function rabs()
-    {
-        return $this->hasMany(Rab::class, 'id_usulan');
-    }
-
-    public function anggotas()
+    // Relasi ke Anggota
+    public function anggota()
     {
         return $this->hasMany(Anggota::class, 'id_usulan');
     }
 }
-
