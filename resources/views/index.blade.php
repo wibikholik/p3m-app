@@ -63,7 +63,7 @@
             <li><a href="{{ route('register') }}">Register</a></li>
             @endif
         @else
-            <li><a href="{{ route('redirect') }}">Dashboard</a></li>
+            <li><a href="{{ route('redirect.role') }}">Dashboard</a></li>
             <li>
             <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
             <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display:none">@csrf</form>
