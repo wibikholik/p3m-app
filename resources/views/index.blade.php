@@ -29,14 +29,14 @@
         <style>
             /* Semi-transparent header with blur effect (local to this page) */
             .header.semi-transparent {
-                background-color: rgba(255, 255, 255, 0.55);
+                background-color: rgba(0, 0, 0, 0.24);
                 backdrop-filter: blur(6px);
                 -webkit-backdrop-filter: blur(6px);
                 box-shadow: 0 6px 18px rgba(0,0,0,0.12);
             }
             .header.dark.semi-transparent,
             .header.semi-transparent.dark {
-                background-color: rgba(6, 6, 6, 0.55);
+                background-color: rgba(0, 0, 0, 0.20);
             }
         </style>
 </head>
