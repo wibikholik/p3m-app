@@ -6,6 +6,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ReviewerController;
 use App\Http\Controllers\DosenController;
+use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\Admin\PengumumanController;
 use App\Http\Controllers\Admin\KategoriPengumumanController;
 use App\Http\Controllers\Admin\UserController;
@@ -21,9 +22,7 @@ use App\Http\Controllers\Dosen\UsulanController;
 // ======================================================================
 // 🔹 HALAMAN AWAL (PUBLIC)
 // ======================================================================
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [LandingPageController::class, 'index'])->name('home');
 
 // ======================================================================
 // 🔹 REDIRECT SESUAI ROLE
