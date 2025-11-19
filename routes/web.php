@@ -142,6 +142,7 @@ Route::middleware(['auth', 'role:dosen'])
         Route::get('/search', [UsulanController::class, 'search'])->name('search');
     });
 
+    
 /*
 |--------------------------------------------------------------------------
 | Auth Routes (Breeze)
