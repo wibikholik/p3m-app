@@ -30,9 +30,9 @@
             /* Semi-transparent header with blur effect (local to this page) */
             .header.semi-transparent {
                 background-color: rgba(0, 0, 0, 0.24);
-                backdrop-filter: blur(6px);
-                -webkit-backdrop-filter: blur(6px);
-                box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+                backdrop-filter: blur(2px);
+                -webkit-backdrop-filter: blur(2px);
+                box-shadow: 0 2px 10px rgba(0,0,0,0.12);
             }
             .header.dark.semi-transparent,
             .header.semi-transparent.dark {
