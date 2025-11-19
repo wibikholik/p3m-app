@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Pengumuman;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\Usulan;
 
 class AdminController extends Controller
 {
@@ -21,11 +22,12 @@ class AdminController extends Controller
         ->count();
 
     $pengumuman = Pengumuman::count();
-        // $totalUsulan = Usulan::count(); // nanti aktifkan kalau sudah ada tabel
+    $totalUsulan = Usulan::count(); // nanti aktifkan kalau sudah ada tabel
 
         return view('admin.dashboard', compact(
             'totalReviewer',
             'totalDosen',
+            'totalUsulan',
             'pengumuman'
         ));
     }
