@@ -1,20 +1,34 @@
 <!--
-    File ini berisi perbaikan untuk sidebar.
-    Perbaikan utama:
-    1. Menambahkan 'openPengumuman: false' ke dalam x-data agar dropdown Pengumuman berfungsi.
-    2. Menambahkan link untuk melihat daftar (index) pada setiap dropdown.
-    3. Menambahkan atribut x-cloak untuk mencegah menu "flash" saat halaman dimuat.
+    File ini berisi perbaikan untuk sidebar, diubah menjadi tema TERANG (LIGHT THEME) 
+    agar tidak menyilaukan/membuat mata lelah, sesuai permintaan pengguna.
 -->
-<aside class="w-64 bg-white shadow-md flex flex-col h-screen fixed top-0" x-data="{ openPenelitian: false, openPengumuman: false }">
+<aside class="w-64 bg-white shadow-lg flex flex-col h-screen fixed top-0 overflow-y-auto" 
+       x-data="{ 
+            openPenelitian: {{ request()->routeIs('admin.penelitian.*') || request()->routeIs('admin.pengabdian.*') ? 'true' : 'false' }}, 
+            openPengumuman: {{ request()->routeIs('admin.pengumuman.*') || request()->routeIs('admin.kategori-pengumuman.*') ? 'true' : 'false' }} 
+       }">
     <!-- Header -->
-    <div class="p-6 border-b">
-        <h1 class="text-2xl font-bold text-gray-800">P3M Admin</h1>
+    <div class="p-6 border-b border-gray-200 bg-white">
+        <h1 class="text-xl font-extrabold text-gray-900 tracking-wider">P3M DASHBOARD</h1>
     </div>
 
     <!-- Navigation -->
-    <nav class="flex-1 mt-4 space-y-1 px-2">
+    <nav class="flex-1 mt-4 space-y-1 px-3">
+        @php
+            // Kelas aktif (Warna biru terang untuk kontras pada latar belakang putih)
+            $activeClass = 'bg-blue-500 text-white shadow-md font-semibold';
+            // Kelas default (Teks gelap, hover abu-abu muda)
+            $defaultClass = 'text-gray-700 hover:bg-gray-100 hover:text-gray-900';
+            // Kelas aktif untuk sub-menu
+            $activeSubClass = 'text-blue-700 bg-blue-100 font-semibold';
+            // Kelas default untuk sub-menu
+            $defaultSubClass = 'text-gray-600 hover:bg-gray-100 hover:text-gray-900';
+        @endphp
+
         <!-- Dashboard -->
-        <a href="{{ route('admin.dashboard') }}" class="block py-3 px-4 text-gray-700 hover:bg-gray-200 rounded flex items-center gap-3">
+        <a href="{{ route('admin.dashboard') }}" 
+           class="block py-3 px-4 rounded-lg flex items-center gap-3 transition duration-150 ease-in-out 
+                  {{ request()->routeIs('admin.dashboard') ? $activeClass : $defaultClass }}">
             <!-- Icon Dashboard -->
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h6v6H3V3zm0 12h6v6H3v-6zm12-12h6v6h-6V3zm0 12h6v6h-6v-6z"/>
@@ -23,26 +37,38 @@
         </a>
 
         <!-- Pengumuman (Dropdown) -->
-        <button @click="openPengumuman = !openPengumuman" class="w-full flex items-center justify-between py-3 px-4 text-gray-700 hover:bg-gray-200 rounded">
+        <button @click="openPengumuman = !openPengumuman" 
+                class="w-full flex items-center justify-between py-3 px-4 rounded-lg transition duration-150 ease-in-out 
+                       {{ request()->routeIs('admin.pengumuman.*') || request()->routeIs('admin.kategori-pengumuman.*') ? $activeClass : $defaultClass }}">
             <div class="flex items-center gap-3">
                 <!-- Icon Pengumuman -->
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-2.236 9.168-5.584C18.354 1.832 18 3.65 18 4.5c0 1.25.333 2.45 1 3.5" />
                 </svg>
-                Pengumuman
+                Manajemen Pengumuman
             </div>
             <svg xmlns="http://www.w3.org/2000/svg" :class="{'rotate-90': openPengumuman}" class="h-4 w-4 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
             </svg>
         </button>
         <!-- Dropdown Menu Pengumuman -->
-        <div x-show="openPengumuman" x-cloak class="pl-8 space-y-1">
-            <a href="{{ route('admin.pengumuman.index') }}" class="block py-2 px-4 text-gray-600 hover:bg-gray-200 rounded">Daftar Pengumuman</a>
-            <a href="{{ route('admin.kategori-pengumuman.index') }}" class="block py-2 px-4 text-gray-600 hover:bg-gray-200 rounded">Daftar Kategori</a>
+        <div x-show="openPengumuman" x-collapse x-cloak class="pl-8 space-y-1">
+            <a href="{{ route('admin.pengumuman.index') }}" 
+               class="block py-2 px-4 rounded-lg transition duration-150 ease-in-out 
+                      {{ request()->routeIs('admin.pengumuman.*') && !request()->routeIs('admin.kategori-pengumuman.*') ? $activeSubClass : $defaultSubClass }}">
+               Daftar Pengumuman
+            </a>
+            <a href="{{ route('admin.kategori-pengumuman.index') }}" 
+               class="block py-2 px-4 rounded-lg transition duration-150 ease-in-out 
+                      {{ request()->routeIs('admin.kategori-pengumuman.*') ? $activeSubClass : $defaultSubClass }}">
+               Daftar Kategori
+            </a>
         </div>
 
         <!-- Penelitian dan Pengabdian (Dropdown) -->
-        <button @click="openPenelitian = !openPenelitian" class="w-full flex items-center justify-between py-3 px-4 text-gray-700 hover:bg-gray-200 rounded">
+        <button @click="openPenelitian = !openPenelitian" 
+                class="w-full flex items-center justify-between py-3 px-4 rounded-lg transition duration-150 ease-in-out 
+                       {{ request()->routeIs('admin.penelitian.*') || request()->routeIs('admin.pengabdian.*') ? $activeClass : $defaultClass }}">
             <div class="flex items-center gap-3">
                 <!-- Icon Penelitian -->
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -56,23 +82,20 @@
             </svg>
         </button>
         <!-- Dropdown Menu Penelitian -->
-        <div x-show="openPenelitian" x-cloak class="pl-8 space-y-1">
-            <a href="#" class="block py-2 px-4 text-gray-600 hover:bg-gray-200 rounded">Daftar Penelitian</a>
-            <a href="#" class="block py-2 px-4 text-gray-600 hover:bg-gray-200 rounded">Daftar Pengabdian</a>
+        <div x-show="openPenelitian" x-collapse x-cloak class="pl-8 space-y-1">
+            <a href="#" class="block py-2 px-4 rounded-lg transition duration-150 ease-in-out {{ $defaultSubClass }}">Daftar Penelitian</a>
+            <a href="#" class="block py-2 px-4 rounded-lg transition duration-150 ease-in-out {{ $defaultSubClass }}">Daftar Pengabdian</a>
         </div>
-        <!-- Link Manajemen Pengguna -->
+        
+        <!-- Manajemen User -->
         <a href="{{ route('admin.users.index') }}" 
-        class="flex items-center space-x-3 px-4 py-3 text-gray-200 rounded-lg transition duration-300
-                {{ request()->routeIs('admin.users.*') ? 'bg-gray-700 text-white' : 'hover:bg-gray-700 hover:text-white' }}">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+           class="block py-3 px-4 rounded-lg flex items-center gap-3 transition duration-150 ease-in-out
+                  {{ request()->routeIs('admin.users.*') ? $activeClass : $defaultClass }}">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.124-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.124-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
-            <span class="font-semibold">Manajemen User</span>
+            Manajemen User
         </a>
-
-     
-        {{-- Anda bisa menambahkan menu lain di sini --}}
-
     </nav>
 </aside>
 
