@@ -3,73 +3,61 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 use App\Models\User;
-use App\Models\JabatanAkademik; // <-- 1. TAMBAHKAN IMPORT INI
+use App\Models\Role;
+use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        // -----------------------------------------------------------------
-        // PENTING:
-        // Pastikan Anda sudah menjalankan JabatanAkademikSeeder
-        // sebelum menjalankan seeder ini.
-        // -----------------------------------------------------------------
+        // Ambil role
+        $adminRole = Role::where('name', 'admin')->first();
+        $dosenRole = Role::where('name', 'dosen')->first();
+        $reviewerRole = Role::where('name', 'reviewer')->first();
 
-        // 2. Ambil data Jabatan dari database
-        $jabatanAA = JabatanAkademik::where('nama_jabatan', 'Asisten Ahli')->first();
-        $jabatanLektor = JabatanAkademik::where('nama_jabatan', 'Lektor')->first();
+        // ===== Admin =====
+        $admin = User::updateOrCreate(
+            ['email' => 'admin@p3m.com'],
+            [
+                'name' => 'Admin User',
+                'password' => Hash::make('admin123'),
+            ]
+        );
+        $admin->roles()->syncWithoutDetaching([$adminRole->id]);
 
-        // =================================================================
-        // Admin
-        User::create([
-            'name' => 'Admin P3M',
-            'email' => 'admin@p3m.com',
-            'password' => Hash::make('admin123'),
-            'role' => 'admin',
-            'nidn' => null, // Admin tidak perlu NIDN
-            'jabatan_akademik_id' => null, // Admin tidak perlu Jabatan
-        ]);
+        // ===== Dosen =====
+        $dosen = User::updateOrCreate(
+            ['email' => 'dosen@p3m.com'],
+            [
+                'name' => 'Dosen User',
+                'nidn' => '1234567890',
+                'jabatan_akademik' => 'Lektor',
+                'password' => Hash::make('dosen123'),
+            ]
+        );
+        $dosen->roles()->syncWithoutDetaching([$dosenRole->id]);
 
-        // =================================================================
-        // Reviewer
-        User::create([
-            'name' => 'Reviewer Sinta',
-            'email' => 'reviewer@p3m.com',
-            'password' => Hash::make('reviewer123'),
-            'role' => 'reviewer',
-            'nidn' => null, // Reviewer mungkin tidak perlu NIDN
-            'jabatan_akademik_id' => null,
-        ]);
+        // ===== Reviewer =====
+        $reviewer = User::updateOrCreate(
+            ['email' => 'reviewer@p3m.com'],
+            [
+                'name' => 'Reviewer User',
+                'password' => Hash::make('reviewer123'),
+            ]
+        );
+        $reviewer->roles()->syncWithoutDetaching([$reviewerRole->id]);
 
-        // =================================================================
-        // Dosen 1 (Asisten Ahli -> hanya bisa skema PDP)
-        User::create([
-            'name' => 'Dosen Wibi (Asisten Ahli)',
-            'email' => 'wibi@p3m.com',
-            'password' => Hash::make('dosen123'),
-            'role' => 'dosen',
-            'nidn' => '1122334455', // <-- 3. TAMBAHKAN NIDN (contoh)
-            
-            // 4. Gunakan ID Jabatan
-            'jabatan_akademik_id' => $jabatanAA->id ?? null,
-        ]);
-
-        // =================================================================
-        // Dosen 2 (Lektor -> hanya bisa skema P2V)
-        User::create([
-            'name' => 'Dosen Budi (Lektor)',
-            'email' => 'budi@p3m.com',
-            'password' => Hash::make('dosen123'),
-            'role' => 'dosen',
-            'nidn' => '5566778899', // <-- NIDN HARUS UNIK
-            
-            // Gunakan ID Jabatan Lektor
-            'jabatan_akademik_id' => $jabatanLektor->id ?? null,
-        ]);
+        // ===== Dosen & Reviewer sekaligus =====
+        $multi = User::updateOrCreate(
+            ['email' => 'dosenreviewer@p3m.com'],
+            [
+                'name' => 'Dosen & Reviewer',
+                'nidn' => '0987654321',
+                'jabatan_akademik' => 'Lektor Kepala',
+                'password' => Hash::make('dosre123'),
+            ]
+        );
+        $multi->roles()->syncWithoutDetaching([$dosenRole->id, $reviewerRole->id]);
     }
 }

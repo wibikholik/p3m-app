@@ -2,65 +2,64 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
-
 
 class User extends Authenticatable
 {
+    use Notifiable;
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
         'email',
         'password',
-        'nidn',                 // <-- TAMBAHKAN INI
-        'jabatan_akademik_id',  // <-- TAMBAHKAN INI
-        'role',
-        'blocked_at',           // <-- (Tambahkan juga 'role' jika ada)
+        'nidn',
+        'jabatan_akademik',
+        'blocked_at',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password' => 'hashed', // (Gunakan 'hashed' jika di Laravel 10+)
+        'blocked_at' => 'datetime',
     ];
 
-    // ===================================================================
-    // TAMBAHKAN FUNGSI RELASI DI BAWAH INI
-    // ===================================================================
+    /**
+     * Relasi many-to-many ke Role
+     */
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class,'role_user');
+    }
 
     /**
-     * Mendapatkan data jabatan akademik user.
+     * Cek apakah user punya role tertentu
      */
-    public function jabatanAkademik()
+    public function hasRole($role)
     {
-        return $this->belongsTo(JabatanAkademik::class);
+        return $this->roles()->where('name', $role)->exists();
     }
-    public function isBlocked()
+
+    /**
+     * Cek apakah user punya salah satu role dari array
+     */
+    public function hasAnyRole(array $roles)
+    {
+        return $this->roles()->whereIn('name', $roles)->exists();
+    }
+    public function jabatanAkademik()
 {
-    return !is_null($this->blocked_at);
+    return $this->belongsTo(\App\Models\JabatanAkademik::class, 'id_jabatan_akademik');
 }
+public function isBlocked()
+    {
+        return ! is_null($this->blocked_at);
+    }
 
 }

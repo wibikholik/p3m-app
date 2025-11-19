@@ -1,25 +1,32 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\User;
 use App\Models\Pengumuman;
-// use App\Models\Usulan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AdminController extends Controller
 {
-     public function index()
-{
-    $totalReviewer = User::where('role', 'reviewer')->count();
-    $totalDosen = User::where('role', 'dosen')->count();
-    $pengumuman = Pengumuman::count();
-    // $totalUsulan = Usulan::count(); // nanti bisa disesuaikan kalau tabelnya belum ada
+    public function index()
+    {
+        // Hitung berdasarkan role Spatie
+        $totalReviewer = DB::table('role_user')
+        ->where('role_id', '3')// reviewer
+        ->count();
 
-    return view('admin.dashboard', compact(
-        'totalReviewer',
-        'totalDosen',
-        'pengumuman'
-        // 'totalUsulan'
-    ));
-}
+    $totalDosen = DB::table('role_user')
+        ->where('role_id', '2')//dosen
+        ->count();
+
+    $pengumuman = Pengumuman::count();
+        // $totalUsulan = Usulan::count(); // nanti aktifkan kalau sudah ada tabel
+
+        return view('admin.dashboard', compact(
+            'totalReviewer',
+            'totalDosen',
+            'pengumuman'
+        ));
+    }
 }
