@@ -39,4 +39,10 @@ class Usulan extends Model
     {
         return $this->hasMany(Anggota::class, 'id_usulan');
     }
+
+    public function pengusul()
+    {
+    return $this->belongsTo(User::class, 'id_user');
+    }
+
 }

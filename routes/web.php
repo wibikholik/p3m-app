@@ -97,6 +97,12 @@ Route::middleware(['auth', 'role:admin'])
         Route::resource('users', UserController::class)->except(['show']);
         Route::post('users/{user}/block', [UserController::class, 'block'])->name('users.block');
         Route::post('users/{user}/unblock', [UserController::class, 'unblock'])->name('users.unblock');
+        
+        Route::get('/usulan', [AdminController::class, 'usulanIndex'])
+        ->name('usulan.index');
+
+        Route::get('/usulan/{id}', [AdminController::class, 'usulanDetail'])
+        ->name('usulan.show');
     });
 
 /*

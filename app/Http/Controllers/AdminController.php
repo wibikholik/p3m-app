@@ -31,4 +31,16 @@ class AdminController extends Controller
             'pengumuman'
         ));
     }
+
+     public function usulanIndex()
+    {
+        $usulan = Usulan::with('pengusul')->get();
+        return view('admin.usulan.index', compact('usulan'));
+    }
+
+    public function usulanDetail($id)
+    {
+        $usulan = Usulan::with('pengusul')->findOrFail($id);
+        return view('admin.usulan.show', compact('usulan'));
+    }
 }
