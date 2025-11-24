@@ -61,5 +61,6 @@ public function isBlocked()
     {
         return ! is_null($this->blocked_at);
     }
+    
 
 }

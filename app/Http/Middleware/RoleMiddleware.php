@@ -22,12 +22,18 @@ class RoleMiddleware
             // Belum login
             return redirect('/login');
         }
+        foreach ($roles as $role) {
+        if ($user->hasRole($role)) { // Memanggil hasRole()
+            return $next($request);
+        }
 
         // Cek apakah user punya salah satu role
         if (!$user->hasAnyRole($roles)) {
             abort(403, 'Unauthorized'); // Bisa diganti redirect ke halaman lain
+
         }
 
         return $next($request);
     }
+}
 }
