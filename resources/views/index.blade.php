@@ -26,10 +26,6 @@
     <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
     <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
 
-<<<<<<< HEAD
-    <!-- Main CSS File -->
-    <link href="assets/css/main.css" rel="stylesheet">
-=======
 <!-- Main CSS File -->
 <link href="assets/css/main.css" rel="stylesheet">
         <style>
@@ -45,18 +41,12 @@
                 background-color: rgba(255, 255, 255, 0.2);
             }
         </style>
->>>>>>> a56cd2b5948556546a9152ae473dc1e6a2e8af53
 </head>
 
 <body class="index-page">
 
-<<<<<<< HEAD
-    <header id="header" class="header d-flex align-items-center sticky-top">
-        <div class="container position-relative d-flex align-items-center">
-=======
 <header id="header" class="header semi-transparent d-flex align-items-center sticky-top">
     <div class="container position-relative d-flex align-items-center">
->>>>>>> a56cd2b5948556546a9152ae473dc1e6a2e8af53
 
             <a href="{{ route('home') }}" class="logo d-flex align-items-center me-auto">
                 <img src="assets/img/logo.png" alt="">
@@ -99,30 +89,12 @@
                         </li>
                     @endguest
                 </ul>
-<<<<<<< HEAD
-                <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
-            </nav>
-=======
             </li>
             </ul>
         </li>
-        {{-- Auth links in navbar: Login/Register (links to separate pages) --}}
-        @guest
-            <li><a href="{{ route('login') }}">Login</a></li>
-            @if (Route::has('register'))
-            <li><a href="{{ route('register') }}">Register</a></li>
-            @endif
-        @else
-            <li><a href="{{ route('redirect.role') }}">Dashboard</a></li>
-            <li>
-            <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
-            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display:none">@csrf</form>
-            </li>
-        @endguest
         </ul>
         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
     </nav>
->>>>>>> a56cd2b5948556546a9152ae473dc1e6a2e8af53
 
             <div class="header-social-links">
                 <a href="#" class="twitter"><i class="bi bi-twitter-x"></i></a>
