@@ -23,6 +23,20 @@ class Usulan extends Model
     ];
 
     // Relasi ke User (Ketua)
+    public function reviewers()
+{
+    return $this->belongsToMany(\App\Models\User::class, 'usulan_reviewer', 'usulan_id', 'reviewer_id')
+        ->withPivot(['id','assigned_by','assigned_at','deadline','status','catatan_assign','catatan_reviewer'])
+        ->withTimestamps();
+}
+// App/Models/User.php (tambah method)
+public function reviewerTasks()
+{
+    return $this->belongsToMany(\App\Models\Usulan::class, 'usulan_reviewer', 'reviewer_id', 'usulan_id')
+        ->withPivot(['id','assigned_by','assigned_at','deadline','status','catatan_assign','catatan_reviewer'])
+        ->withTimestamps();
+}
+
     public function user()
     {
         return $this->belongsTo(User::class, 'id_user');

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminUsulanController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\ProfileController;
@@ -12,14 +13,14 @@ use App\Http\Controllers\Admin\KategoriPengumumanController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Dosen\DosenPengumumanController;
 use App\Http\Controllers\Dosen\UsulanController;
+use App\Http\Controllers\Reviewer\ReviewerUsulanController;
+
 
 /*
 |--------------------------------------------------------------------------
 | Halaman Public
 |--------------------------------------------------------------------------
 */
-
-
 
 
 Route::get('/', [LandingPageController::class, 'index'])->name('home');
@@ -61,7 +62,7 @@ Route::get('/redirect-role', function () {
     $activeRole = session('active_role') ?? $user->roles()->first()->name ?? 'dosen';
 
     return match ($activeRole) {
-        'admin'    => redirect()->route('admin.dashboard'),
+        'admin'     => redirect()->route('admin.dashboard'),
         'reviewer' => redirect()->route('reviewer.dashboard'),
         default     => redirect()->route('dosen.dashboard'),
     };
@@ -98,13 +99,38 @@ Route::middleware(['auth', 'role:admin'])
         Route::resource('users', UserController::class)->except(['show']);
         Route::post('users/{user}/block', [UserController::class, 'block'])->name('users.block');
         Route::post('users/{user}/unblock', [UserController::class, 'unblock'])->name('users.unblock');
-        
-        Route::get('/usulan', [AdminController::class, 'usulanIndex'])
-        ->name('usulan.index');
 
-        Route::get('/usulan/{id}', [AdminController::class, 'usulanDetail'])
-        ->name('usulan.show');
+        // USULAN INDEX
+        Route::get('/usulan', [AdminUsulanController::class, 'usulanIndex'])
+            ->name('usulan.index');
+
+        // USULAN DETAIL
+        Route::get('/usulan/{id}', [AdminUsulanController::class, 'usulanDetail'])
+            ->name('usulan.show');
+
+        // PREVIEW FILE
+        Route::get('/usulan/preview/{filename}', [AdminUsulanController::class, 'previewFile'])
+            ->name('usulan.preview_file');
+
+        // DOWNLOAD FILE
+        Route::get('/usulan/download/{filename}', [AdminUsulanController::class, 'downloadFile'])
+            ->name('usulan.download_file');
+
+        // VERIFIKASI ADMINISTRASI
+        Route::put('/usulan/{usulan}/verifikasi', [AdminUsulanController::class, 'verifikasi'])
+            ->name('usulan.verifikasi');
+
+        Route::get('/usulan/{id}/assign-reviewer', [AdminUsulanController::class, 'assignReviewerPage'])
+    ->name('usulan.assignReviewer.page');
+
+// Submit assign reviewer
+Route::post('/usulan/{id}/assign-reviewer', [AdminUsulanController::class, 'assignReviewer'])
+    ->name('usulan.assignReviewer');
+
     });
+
+        // ** END ADMIN USULAN ROUTES **
+    
 
 /*
 |--------------------------------------------------------------------------
@@ -118,6 +144,16 @@ Route::middleware(['auth', 'role:reviewer'])
 
         Route::get('/dashboard', [ReviewerController::class, 'index'])->name('dashboard');
 
+        Route::get('/usulan', [App\Http\Controllers\Reviewer\ReviewerUsulanController::class, 'index'])->name('usulan.index');
+
+    // Detail usulan untuk reviewer
+    Route::get('/usulan/{id}', [App\Http\Controllers\Reviewer\ReviewerUsulanController::class, 'show'])->name('usulan.show');
+
+    // Terima tugas
+    Route::post('/usulan/{id}/accept', [App\Http\Controllers\Reviewer\ReviewerUsulanController::class, 'accept'])->name('usulan.accept');
+
+    // Tolak tugas
+    Route::post('/usulan/{id}/decline', [App\Http\Controllers\Reviewer\ReviewerUsulanController::class, 'decline'])->name('usulan.decline');
         // Route tambahan reviewer tambahkan disini
     });
 
