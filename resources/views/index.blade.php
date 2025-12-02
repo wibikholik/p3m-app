@@ -26,13 +26,13 @@
     <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
     <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
 
-<<<<<<< HEAD
+
 
     <!-- Main CSS File -->
     <link href="assets/css/main.css" rel="stylesheet">
 
-=======
->>>>>>> 1039658dabdd57d645d93a569f4979196eb2442d
+
+
 <!-- Main CSS File -->
 <link href="assets/css/main.css" rel="stylesheet">
         <style>
@@ -48,24 +48,17 @@
                 background-color: rgba(255, 255, 255, 0.2);
             }
         </style>
-<<<<<<< HEAD
 
-
-=======
->>>>>>> 1039658dabdd57d645d93a569f4979196eb2442d
 </head>
 
 <body class="index-page">
 
-<<<<<<< HEAD
+
 
 <header id="header" class="header semi-transparent d-flex align-items-center sticky-top">
     <div class="container position-relative d-flex align-items-center">
 
-=======
-<header id="header" class="header semi-transparent d-flex align-items-center sticky-top">
-    <div class="container position-relative d-flex align-items-center">
->>>>>>> 1039658dabdd57d645d93a569f4979196eb2442d
+
 
             <a href="{{ route('home') }}" class="logo d-flex align-items-center me-auto">
                 <img src="assets/img/logo.png" alt="">

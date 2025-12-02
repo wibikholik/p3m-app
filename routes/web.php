@@ -192,7 +192,15 @@ Route::middleware(['auth', 'role:reviewer'])
 
     // Tolak tugas
     Route::post('/usulan/{id}/decline', [App\Http\Controllers\Reviewer\ReviewerUsulanController::class, 'decline'])->name('usulan.decline');
-        // Route tambahan reviewer tambahkan disini
+    // Review usulan
+    Route::get('/usulan/{id}/review', [App\Http\Controllers\Reviewer\ReviewerUsulanController::class, 'review'])->name('usulan.review');
+    Route::post('/usulan/{id}/review/submit', [App\Http\Controllers\Reviewer\ReviewerUsulanController::class, 'submitReview'])->name('usulan.review.submit');
+    Route::post('/usulan/{id}/review/revisi', [App\Http\Controllers\Reviewer\ReviewerUsulanController::class, 'requestRevision'])->name('usulan.review.revisi');   
+   Route::get('/usulan/{id}/download/{filename}', 
+            [ReviewerUsulanController::class, 'downloadFile']
+        )->name('usulan.download_file');
+
+    // Route tambahan reviewer tambahkan disini
     });
 
 /*

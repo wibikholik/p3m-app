@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Dosen;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Usulan;
-use App\Models\UsulanAnggota;
+use App\Models\Anggota;
 use App\Models\Pengumuman;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -127,7 +127,7 @@ class UsulanController extends Controller
         if ($request->has('anggota')) {
             foreach ($request->anggota as $anggota) {
                 if (!empty($anggota['nama'])) {
-                    $usulan->anggotas()->create([
+                    $usulan->anggota()->create([
                         'nama' => $anggota['nama'],
                         'nidn' => $anggota['nidn'] ?? null,
                         'jabatan' => $anggota['jabatan'] ?? null,
@@ -137,7 +137,7 @@ class UsulanController extends Controller
             }
         }
 
-        return redirect()->route('usulan.index')->with('success', 'Usulan berhasil dibuat. Anda otomatis menjadi ketua.');
+        return redirect()->route('admin.usulan.index')->with('success', 'Usulan berhasil dibuat. Anda otomatis menjadi ketua.');
     }
 
     // ===========================
@@ -212,7 +212,7 @@ class UsulanController extends Controller
             'id_pengumuman' => $request->id_pengumuman,
         ]);
 
-        return redirect()->route('usulan.index')->with('success', 'Usulan berhasil diperbarui.');
+        return redirect()->route('dosen.usulan.index')->with('success', 'Usulan berhasil diperbarui.');
     }
 
     // ===========================
@@ -234,6 +234,6 @@ class UsulanController extends Controller
 
         $usulan->delete();
 
-        return redirect()->route('usulan.index')->with('success', 'Usulan berhasil dihapus.');
+        return redirect()->route('dosen.usulan.index')->with('success', 'Usulan berhasil dihapus.');
     }
 }

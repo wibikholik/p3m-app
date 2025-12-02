@@ -33,6 +33,12 @@ class User extends Authenticatable
     /**
      * Relasi many-to-many ke Role
      */
+public function usulanReviewer()
+{
+    return $this->belongsToMany(Usulan::class, 'usulan_reviewer', 'reviewer_id', 'usulan_id')
+                ->withPivot(['status', 'assigned_at', 'deadline']);
+}
+
     public function roles()
     {
         return $this->belongsToMany(Role::class,'role_user');
@@ -61,6 +67,12 @@ public function isBlocked()
     {
         return ! is_null($this->blocked_at);
     }
-    
+    public function reviewers()
+{
+    return $this->belongsToMany(User::class, 'usulan_reviewer', 'usulan_id', 'reviewer_id')
+                ->withPivot(['status', 'assigned_at', 'deadline', 'catatan_review'])
+                ->withTimestamps();
+}
+
 
 }
