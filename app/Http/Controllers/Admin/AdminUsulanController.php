@@ -9,6 +9,9 @@ use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use App\Models\MasterKelengkapan;
+use App\Models\UsulanKelengkapan;
+
 
 class AdminUsulanController extends Controller
 {
@@ -33,12 +36,27 @@ class AdminUsulanController extends Controller
     /**
      * Menampilkan detail usulan
      */
-    public function usulanDetail($id)
-    {
-        $usulan = Usulan::with(['pengusul', 'anggota', 'pengumuman.kategori'])->findOrFail($id);
-        return view('admin.usulan.show', compact('usulan'));
-    }
+    // public function usulanDetail($id)
+    // {
+    //     $usulan = Usulan::with(['pengusul', 'anggota', 'pengumuman.kategori'])->findOrFail($id);
+    //     return view('admin.usulan.show', compact('usulan'));
+    // }
 
+    public function usulanDetail($id)
+{
+    $usulan = Usulan::with(['pengusul', 'anggota', 'pengumuman.kategori'])->findOrFail($id);
+
+    // Ambil semua master kelengkapan aktif (urutkan jika perlu)
+    $masterKelengkapan = MasterKelengkapan::where('is_active', 1)
+                            ->orderBy('order')
+                            ->get();
+
+    // Ambil checklist/usulan_kelengkapan yang sudah tersimpan untuk usulan ini
+    // keyBy supaya mudah diakses di view dengan $ceklistUsulan[$item->id]
+    $ceklistUsulan = UsulanKelengkapan::where('usulan_id', $id)->get()->keyBy('kelengkapan_id');
+
+    return view('admin.usulan.show', compact('usulan','masterKelengkapan','ceklistUsulan'));
+}
     /**
      * Preview file usulan secara inline
      */
@@ -70,28 +88,62 @@ class AdminUsulanController extends Controller
     /**
      * Verifikasi administrasi (approve/reject)
      */
+    // public function verifikasi(Request $request, $id)
+    // {
+    //     $usulan = Usulan::findOrFail($id);
+    //     $action = $request->action;
+
+    //     if ($action === 'approve') {
+    //         $usulan->status = 'lolos_administrasi';
+    //         $usulan->catatan_admin = null;
+    //         $usulan->checklist = json_encode($request->checklist);
+    //     } elseif ($action === 'reject') {
+    //         if (!$request->catatan_admin) {
+    //             return back()->with('error', 'Catatan wajib diisi jika menolak.');
+    //         }
+    //         $usulan->status = 'ditolak_administrasi';
+    //         $usulan->catatan_admin = $request->catatan_admin;
+    //         $usulan->checklist = json_encode($request->checklist);
+    //     }
+
+    //     $usulan->save();
+
+    //     return back()->with('success', 'Status verifikasi berhasil diperbarui.');
+    // }
+
     public function verifikasi(Request $request, $id)
-    {
-        $usulan = Usulan::findOrFail($id);
-        $action = $request->action;
+{
+    $usulan = Usulan::findOrFail($id);
 
-        if ($action === 'approve') {
-            $usulan->status = 'lolos_administrasi';
-            $usulan->catatan_admin = null;
-            $usulan->checklist = json_encode($request->checklist);
-        } elseif ($action === 'reject') {
-            if (!$request->catatan_admin) {
-                return back()->with('error', 'Catatan wajib diisi jika menolak.');
-            }
-            $usulan->status = 'ditolak_administrasi';
-            $usulan->catatan_admin = $request->catatan_admin;
-            $usulan->checklist = json_encode($request->checklist);
-        }
-
-        $usulan->save();
-
-        return back()->with('success', 'Status verifikasi berhasil diperbarui.');
+    // Simpan setiap checklist ke tabel usulan_kelengkapan
+    $checked = $request->input('checklist', []); // selalu array, walau kosong
+    foreach ($checked as $kelengkapanId) {
+        UsulanKelengkapan::create([
+            'usulan_id'       => $id,
+            'kelengkapan_id'  => $kelengkapanId,
+            'status'          => 1,
+        ]);
     }
+
+    // Tentukan status administrasi
+    $action = $request->action;
+
+    if ($action === 'approve') {
+        $usulan->status = 'lolos_administrasi';
+        $usulan->catatan_admin = null;
+    } else {
+        if (!$request->catatan_admin) {
+            return back()->with('error', 'Catatan wajib diisi jika menolak.');
+        }
+        $usulan->status = 'ditolak_administrasi';
+        $usulan->catatan_admin = $request->catatan_admin;
+    }
+
+    $usulan->save();
+
+    return back()->with('success', 'Status verifikasi berhasil diperbarui.');
+}
+
 
     /**
      * Menampilkan halaman assign reviewer

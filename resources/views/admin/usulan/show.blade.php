@@ -4,6 +4,7 @@
 @section('page-title', 'Verifikasi Usulan')
 
 @section('content')
+
 <style>
     /* Styling khusus untuk Split-View */
     /* Menyesuaikan tinggi agar Form sticky di bagian bawah bekerja optimal */
@@ -247,72 +248,92 @@
         </div>
 
         {{-- RIGHT: STICKY VERIFICATION FORM --}}
-        <div class="sticky-form">
-            @if ($usulan->status == 'diajukan')
-                <div class="bg-white shadow overflow-hidden sm:rounded-lg border border-red-300 p-6">
-                    <h2 class="text-xl font-bold text-red-700 border-b pb-3 mb-5">
-                        TINDAK LANJUT: Verifikasi Administrasi
-                    </h2>
-                    
-                    <form action="{{ route('admin.usulan.verifikasi', $usulan->id) }}" method="POST">
-                        @csrf
-                        @method('PUT')
+<div class="sticky-form">
+    @if ($usulan->status == 'diajukan')
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg border border-red-300 p-6">
+            <h2 class="text-xl font-bold text-red-700 border-b pb-3 mb-5">
+                TINDAK LANJUT: Verifikasi Administrasi
+            </h2>
+            
+            <form action="{{ route('admin.usulan.verifikasi', $usulan->id) }}" method="POST">
+                @csrf
+                @method('PUT')
 
-                        {{-- Checklist Verifikasi --}}
-                        <div class="space-y-4 mb-6">
-                            <h3 class="text-lg font-semibold text-gray-700">Checklist Kelengkapan Dokumen:</h3>
-                            
-                            {{-- Check 1: Dokumen Lengkap --}}
-                            <div class="relative flex items-start">
-                                <div class="flex items-center h-5"><input id="check_dokumen" name="checklist[]" type="checkbox" value="dokumen_lengkap" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"></div>
-                                <div class="ml-3 text-sm"><label for="check_dokumen" class="font-medium text-gray-700">Dokumen Proposal (PDF) Lengkap dan Terstruktur.</label></div>
-                            </div>
-                            
-                            {{-- Check 2: Pengesahan Valid --}}
-                            <div class="relative flex items-start">
-                                <div class="flex items-center h-5"><input id="check_pengesahan" name="checklist[]" type="checkbox" value="pengesahan_valid" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"></div>
-                                <div class="ml-3 text-sm"><label for="check_pengesahan" class="font-medium text-gray-700">Lembar Pengesahan sudah ditandatangani oleh semua pihak.</label></div>
-                            </div>
+                {{-- Checklist Verifikasi --}}
+                <div class="space-y-4 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-700">Checklist Kelengkapan Dokumen:</h3>
 
-                            {{-- Check 3: Format Sesuai --}}
-                            <div class="relative flex items-start">
-                                <div class="flex items-center h-5"><input id="check_format" name="checklist[]" type="checkbox" value="format_sesuai" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"></div>
-                                <div class="ml-3 text-sm"><label for="check_format" class="font-medium text-gray-700">Format dan Tata Tulis sesuai Panduan P3M.</label></div>
+                    @foreach ($masterKelengkapan as $item)
+                        @php
+                            $checked = isset($ceklistUsulan[$item->id]) && ($ceklistUsulan[$item->id]->status == 1 || $ceklistUsulan[$item->id]->status === 'lengkap');
+                        @endphp
+
+
+                        <div class="relative flex items-start">
+                            <div class="flex items-center h-5">
+                                <input  
+                                    type="checkbox" 
+                                    id="check_{{ $item->id }}" 
+                                    name="checklist[]" 
+                                    value="{{ $item->id }}" 
+                                    class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                                    {{ $checked ? 'checked' : '' }}
+                                >
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <label for="check_{{ $item->id }}" class="font-medium text-gray-700">
+                                    {{ $item->nama }}
+                                </label>
+                                @if ($item->deskripsi)
+                                    <p class="text-gray-500 text-xs">{{ $item->deskripsi }}</p>
+                                @endif
                             </div>
                         </div>
-                        
-                        {{-- Field Catatan (Untuk Penolakan) --}}
-                        <div class="mb-6">
-                            <label for="catatan_admin" class="block text-sm font-medium text-gray-700">Catatan/Alasan Penolakan (Wajib diisi jika Tolak)</label>
-                            <textarea id="catatan_admin" name="catatan_admin" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"></textarea>
-                        </div>
+                    @endforeach
 
-                        {{-- Tombol Aksi --}}
-                        <div class="flex justify-end space-x-3 pt-4 border-t">
-                            {{-- Tombol Tolak --}}
-                            <button type="submit" name="action" value="reject" 
-                                    class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition">
-                                Tolak Administrasi
-                            </button>
-
-                            {{-- Tombol Lolos --}}
-                            <button type="submit" name="action" value="approve" 
-                                    class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition">
-                                Lolos Administrasi
-                            </button>
-                        </div>
-                    </form>
                 </div>
-            @else
-                {{-- Tampilan jika status sudah diproses --}}
-                <div class="bg-white shadow overflow-hidden sm:rounded-lg border border-gray-200 p-6 text-center">
-                    <p class="text-lg font-semibold text-gray-700">Proposal ini sudah diverifikasi Administrasi.</p>
-                    <p class="text-sm text-gray-500 mt-2">Anda dapat kembali ke <a href="{{ route('admin.usulan.index') }}" class="text-indigo-600 hover:text-indigo-800">Daftar Usulan</a> untuk melanjutkan proses.</p>
+                
+                {{-- Field Catatan --}}
+                <div class="mb-6">
+                    <label for="catatan_admin" class="block text-sm font-medium text-gray-700">
+                        Catatan/Alasan Penolakan (Wajib diisi jika Tolak)
+                    </label>
+                    <textarea id="catatan_admin" name="catatan_admin" rows="3"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500"></textarea>
                 </div>
-            @endif
+
+                {{-- Tombol Aksi --}}
+                <div class="flex justify-end space-x-3 pt-4 border-t">
+                    {{-- Tombol Tolak --}}
+                    <button type="submit" name="action" value="reject"
+                        class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md 
+                               text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition">
+                        Tolak Administrasi
+                    </button>
+
+                    {{-- Tombol Lolos --}}
+                    <button type="submit" name="action" value="approve"
+                        class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md 
+                               text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition">
+                        Lolos Administrasi
+                    </button>
+                </div>
+            </form>
         </div>
-    </div>
-    {{-- END SPLIT-VIEW CONTAINER --}}
+    @else
+        {{-- Jika status bukan diajukan --}}
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg border border-gray-200 p-6 text-center">
+            <p class="text-lg font-semibold text-gray-700">Proposal ini sudah diverifikasi Administrasi.</p>
+            <p class="text-sm text-gray-500 mt-2">
+                Anda dapat kembali ke 
+                <a href="{{ route('admin.usulan.index') }}" class="text-indigo-600 hover:text-indigo-800">
+                    Daftar Usulan
+                </a>.
+            </p>
+        </div>
+    @endif
+</div>
+
 
 </div>
 @endsection

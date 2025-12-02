@@ -6,20 +6,24 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up()
-{
-    Schema::table('usulans', function (Blueprint $table) {
-        $table->json('checklist')->nullable()->after('catatan_admin');
-    });
-}
+    public function up(): void
+    {
+        Schema::table('usulans', function (Blueprint $table) {
+            $table->text('catatan_admin')->nullable()->after('status');
+            $table->json('checklist')->nullable()->after('catatan_admin');
+        });
+    }
 
-public function down()
+    public function down(): void
 {
     Schema::table('usulans', function (Blueprint $table) {
-        $table->dropColumn('checklist');
+        if (Schema::hasColumn('usulans', 'catatan_admin')) {
+            $table->dropColumn('catatan_admin');
+        }
+
+        if (Schema::hasColumn('usulans', 'checklist')) {
+            $table->dropColumn('checklist');
+        }
     });
 }
 

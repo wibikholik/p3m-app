@@ -59,4 +59,9 @@ public function reviewerTasks()
     return $this->belongsTo(User::class, 'id_user');
     }
 
+    public function kelengkapan()
+{
+    return $this->hasMany(UsulanKelengkapan::class, 'usulan_id');
+}
+
 }

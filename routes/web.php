@@ -14,6 +14,8 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Dosen\DosenPengumumanController;
 use App\Http\Controllers\Dosen\UsulanController;
 use App\Http\Controllers\Reviewer\ReviewerUsulanController;
+use App\Http\Controllers\Admin\MasterKelengkapanController;
+use App\Http\Controllers\Admin\UsulanKelengkapanController;
 
 
 /*
@@ -130,6 +132,42 @@ Route::post('/usulan/{id}/assign-reviewer', [AdminUsulanController::class, 'assi
     });
 
         // ** END ADMIN USULAN ROUTES **
+
+    
+
+        // Master kelengkapan (CRUD)
+    Route::middleware(['auth','role:admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+
+        Route::get('/kelengkapan', [MasterKelengkapanController::class, 'index'])
+            ->name('kelengkapan.index');
+
+        Route::post('/kelengkapan', [MasterKelengkapanController::class,'store'])
+            ->name('kelengkapan.store');
+
+        Route::get('/kelengkapan/{id}/edit', [MasterKelengkapanController::class,'edit'])
+            ->name('kelengkapan.edit');
+
+        Route::put('/kelengkapan/{id}', [MasterKelengkapanController::class,'update'])
+            ->name('kelengkapan.update');
+
+        Route::delete('/kelengkapan/{id}', [MasterKelengkapanController::class,'destroy'])
+            ->name('kelengkapan.destroy');
+
+        Route::post('/kelengkapan/{id}/toggle', [MasterKelengkapanController::class,'toggle'])
+            ->name('kelengkapan.toggle');
+});
+
+
+
+
+        // Checklist per usulan
+        Route::middleware(['auth','can:check-usulan'])->group(function() {
+            Route::get('/usulan/{id}/checklist', [UsulanKelengkapanController::class,'editChecklist'])->name('usulan.checklist.edit');
+            Route::post('/usulan/{id}/checklist', [UsulanKelengkapanController::class,'updateChecklist'])->name('usulan.checklist.update');
+        });
     
 
 /*
