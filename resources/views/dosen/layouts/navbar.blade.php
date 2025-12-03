@@ -38,9 +38,10 @@
                     </a>
                 @endif
 
-                <a href="{{ route('profile.index') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
                     Profile
                 </a>
+
 
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
