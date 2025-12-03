@@ -88,23 +88,39 @@
         </div>
 
         <!-- Manajemen Usulan -->
-        <a href="{{ route('admin.usulan.index') }}" 
-           class="block py-3 px-4 rounded-lg flex items-center gap-3 transition duration-150 ease-in-out
-                  {{ request()->routeIs('admin.usulan.*') ? $activeClass : $defaultClass }}">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.124-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.124-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        <a href="{{ route('admin.usulan.index') }}"
+        class="block py-3 px-4 rounded-lg flex items-center gap-3 transition duration-150 ease-in-out
+                {{ request()->routeIs('admin.usulan.*') ? $activeClass : $defaultClass }}">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M7 7h10M7 11h10m-7 4h7m-8 5H5a2 2 0 01-2-2V5a2 2 0 012-2h9l5 5v11a2 2 0 01-2 2H7z" />
             </svg>
             Manajemen Usulan
         </a>
-        
+
         <!-- Manajemen Kelengkapan Administrasi -->
-        <a href="{{ route('admin.kelengkapan.index') }}" 
-           class="block py-3 px-4 rounded-lg flex items-center gap-3 transition duration-150 ease-in-out
-                  {{ request()->routeIs('admin.kelengkapan.*') ? $activeClass : $defaultClass }}">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.124-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.124-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        <a href="{{ route('admin.kelengkapan.index') }}"
+        class="block py-3 px-4 rounded-lg flex items-center gap-3 transition duration-150 ease-in-out
+                {{ request()->routeIs('admin.kelengkapan.*') ? $activeClass : $defaultClass }}">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M9 12l2 2l4-4m1-4h-3.586a1 1 0 01-.707-.293l-1.414-1.414A1 1 0 008.586 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V7a2 2 0 00-2-2h-3z" />
             </svg>
             Manajemen Kelengkapan Administrasi
+        </a>
+
+
+        <!-- Manajemen Penilaian -->
+        <a href="{{ route('admin.penilaian.index') }}" 
+        class="block py-3 px-4 rounded-lg flex items-center gap-3 transition duration-150 ease-in-out
+                {{ request()->routeIs('admin.penilaian.*') ? $activeClass : $defaultClass }}">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5l2 2h5a2 2 0 012 2v12a2 2 0 01-2 2z"/>
+            </svg>
+            Manajemen Penilaian
         </a>
 
         <!-- Manajemen User -->

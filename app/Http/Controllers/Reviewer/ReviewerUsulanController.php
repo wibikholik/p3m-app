@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Models\MasterPenilaian; // Tambahkan ini
 
 class ReviewerUsulanController extends Controller
 {
@@ -23,7 +24,8 @@ class ReviewerUsulanController extends Controller
                 'usulans.*',
                 'usulan_reviewer.status as reviewer_status',
                 'usulan_reviewer.assigned_at',
-                'usulan_reviewer.deadline'
+                'usulan_reviewer.deadline',
+                'usulan_reviewer.sudah_direview'
             )
             ->orderBy('usulan_reviewer.assigned_at', 'desc')
             ->get()
@@ -48,13 +50,12 @@ class ReviewerUsulanController extends Controller
                 'usulan_reviewer.status as reviewer_status',
                 'usulan_reviewer.assigned_at',
                 'usulan_reviewer.deadline',
-                'usulan_reviewer.catatan_assign'
+                'usulan_reviewer.catatan_assign',
+                'usulan_reviewer.sudah_direview'
             )
             ->first();
 
-        if (!$usulan) {
-            abort(403, 'Anda tidak memiliki akses ke usulan ini.');
-        }
+        if (!$usulan) abort(403);
 
         return view('reviewer.usulan.show', compact('usulan'));
     }
@@ -107,7 +108,39 @@ class ReviewerUsulanController extends Controller
 
         $pengusul = DB::table('users')->where('id', $usulan->id_user)->first();
 
-        return view('reviewer.usulan.review', compact('usulan', 'pengusul', 'pivot'));
+        $komponen_penilaian = MasterPenilaian::orderBy('id')->get();
+
+        return view('reviewer.usulan.review', compact('usulan', 'pengusul', 'pivot', 'komponen_penilaian'));
+    }
+
+    public function submitReview(Request $request, $id)
+    {
+        $reviewerId = Auth::id();
+
+        $request->validate([
+            'nilai' => 'required|numeric|min:0|max:100',
+            'catatan' => 'required|string',
+        ]);
+
+        $pivot = DB::table('usulan_reviewer')
+            ->where('usulan_id', $id)
+            ->where('reviewer_id', $reviewerId)
+            ->first();
+
+        if (!$pivot) abort(403);
+
+        DB::table('usulan_reviewer')
+            ->where('usulan_id', $id)
+            ->where('reviewer_id', $reviewerId)
+            ->update([
+                'sudah_direview' => true,
+                'nilai' => $request->nilai,
+                'catatan' => $request->catatan,
+                'updated_at' => now(),
+            ]);
+
+        return redirect()->route('reviewer.usulan.review', $id)
+                         ->with('success', 'Review berhasil disimpan.');
     }
 
     public function downloadFile($id, $filename)
@@ -119,9 +152,7 @@ class ReviewerUsulanController extends Controller
             ->where('reviewer_id', $reviewerId)
             ->first();
 
-        if (!$cek) {
-            abort(403, 'Anda tidak memiliki akses ke file ini.');
-        }
+        if (!$cek) abort(403);
 
         $path = "usulan/$filename";
 

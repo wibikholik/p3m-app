@@ -16,6 +16,7 @@ use App\Http\Controllers\Dosen\UsulanController;
 use App\Http\Controllers\Reviewer\ReviewerUsulanController;
 use App\Http\Controllers\Admin\MasterKelengkapanController;
 use App\Http\Controllers\Admin\UsulanKelengkapanController;
+use App\Http\Controllers\Admin\MasterPenilaianController;
 
 
 /*
@@ -23,13 +24,12 @@ use App\Http\Controllers\Admin\UsulanKelengkapanController;
 | Halaman Public
 |--------------------------------------------------------------------------
 */
-
-
 Route::get('/', [LandingPageController::class, 'index'])->name('home');
+
 
 /*
 |--------------------------------------------------------------------------
-| Switch Role (POST)
+| Switch Role
 |--------------------------------------------------------------------------
 */
 Route::post('/switch-role', function (\Illuminate\Http\Request $request) {
@@ -40,27 +40,19 @@ Route::post('/switch-role', function (\Illuminate\Http\Request $request) {
     $user = Auth::user();
     if (!$user) return redirect('/');
 
-    // Hanya izinkan role yang dimiliki user
     if ($user->roles()->where('name', $request->role)->exists()) {
         session(['active_role' => $request->role]);
     }
 
-    // Redirect ke dashboard role tersebut
     return redirect()->route('redirect.role');
 
 })->middleware('auth')->name('switch-role');
 
-/*
-|--------------------------------------------------------------------------
-| Redirect otomatis berdasarkan active role
-|--------------------------------------------------------------------------
-*/
-Route::get('/redirect-role', function () {
 
+Route::get('/redirect-role', function () {
     $user = Auth::user();
     if (!$user) return redirect('/');
 
-    // Ambil role aktif dari session, jika kosong ambil role pertama user
     $activeRole = session('active_role') ?? $user->roles()->first()->name ?? 'dosen';
 
     return match ($activeRole) {
@@ -68,12 +60,12 @@ Route::get('/redirect-role', function () {
         'reviewer' => redirect()->route('reviewer.dashboard'),
         default     => redirect()->route('dosen.dashboard'),
     };
-
 })->middleware(['auth', 'verified'])->name('redirect.role');
+
 
 /*
 |--------------------------------------------------------------------------
-| Profile Routes (semua role)
+| Profile Routes
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -82,6 +74,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
 });
+
 
 /*
 |--------------------------------------------------------------------------
@@ -122,53 +115,41 @@ Route::middleware(['auth', 'role:admin'])
         Route::put('/usulan/{usulan}/verifikasi', [AdminUsulanController::class, 'verifikasi'])
             ->name('usulan.verifikasi');
 
+        // Assign Reviewer
         Route::get('/usulan/{id}/assign-reviewer', [AdminUsulanController::class, 'assignReviewerPage'])
-    ->name('usulan.assignReviewer.page');
+            ->name('usulan.assignReviewer.page');
 
-// Submit assign reviewer
-Route::post('/usulan/{id}/assign-reviewer', [AdminUsulanController::class, 'assignReviewer'])
-    ->name('usulan.assignReviewer');
+        Route::post('/usulan/{id}/assign-reviewer', [AdminUsulanController::class, 'assignReviewer'])
+            ->name('usulan.assignReviewer');
 
-    });
-
-        // ** END ADMIN USULAN ROUTES **
-
-    
-
-        // Master kelengkapan (CRUD)
-    Route::middleware(['auth','role:admin'])
-    ->prefix('admin')
-    ->name('admin.')
-    ->group(function () {
-
-        Route::get('/kelengkapan', [MasterKelengkapanController::class, 'index'])
-            ->name('kelengkapan.index');
-
-        Route::post('/kelengkapan', [MasterKelengkapanController::class,'store'])
-            ->name('kelengkapan.store');
-
-        Route::get('/kelengkapan/{id}/edit', [MasterKelengkapanController::class,'edit'])
-            ->name('kelengkapan.edit');
-
-        Route::put('/kelengkapan/{id}', [MasterKelengkapanController::class,'update'])
-            ->name('kelengkapan.update');
-
-        Route::delete('/kelengkapan/{id}', [MasterKelengkapanController::class,'destroy'])
-            ->name('kelengkapan.destroy');
-
+        /*
+        |--------------------------------------------------------------------------
+        | Master Kelengkapan
+        |--------------------------------------------------------------------------
+        */
+        Route::resource('kelengkapan', MasterKelengkapanController::class)->except(['show']);
         Route::post('/kelengkapan/{id}/toggle', [MasterKelengkapanController::class,'toggle'])
             ->name('kelengkapan.toggle');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Master Penilaian (Fixed No Duplicate Route)
+        |--------------------------------------------------------------------------
+        */
+        Route::resource('penilaian', MasterPenilaianController::class)->except(['show']);
+
+        Route::post('/penilaian/{id}/toggle', [MasterPenilaianController::class, 'toggle'])
+            ->name('penilaian.toggle');
+    });
+
+
+// Checklist per usulan
+Route::middleware(['auth','can:check-usulan'])->group(function() {
+    Route::get('/usulan/{id}/checklist', [UsulanKelengkapanController::class,'editChecklist'])->name('usulan.checklist.edit');
+    Route::post('/usulan/{id}/checklist', [UsulanKelengkapanController::class,'updateChecklist'])->name('usulan.checklist.update');
 });
 
 
-
-
-        // Checklist per usulan
-        Route::middleware(['auth','can:check-usulan'])->group(function() {
-            Route::get('/usulan/{id}/checklist', [UsulanKelengkapanController::class,'editChecklist'])->name('usulan.checklist.edit');
-            Route::post('/usulan/{id}/checklist', [UsulanKelengkapanController::class,'updateChecklist'])->name('usulan.checklist.update');
-        });
-    
 
 /*
 |--------------------------------------------------------------------------
@@ -182,26 +163,17 @@ Route::middleware(['auth', 'role:reviewer'])
 
         Route::get('/dashboard', [ReviewerController::class, 'index'])->name('dashboard');
 
-        Route::get('/usulan', [App\Http\Controllers\Reviewer\ReviewerUsulanController::class, 'index'])->name('usulan.index');
-
-    // Detail usulan untuk reviewer
-    Route::get('/usulan/{id}', [App\Http\Controllers\Reviewer\ReviewerUsulanController::class, 'show'])->name('usulan.show');
-
-    // Terima tugas
-    Route::post('/usulan/{id}/accept', [App\Http\Controllers\Reviewer\ReviewerUsulanController::class, 'accept'])->name('usulan.accept');
-
-    // Tolak tugas
-    Route::post('/usulan/{id}/decline', [App\Http\Controllers\Reviewer\ReviewerUsulanController::class, 'decline'])->name('usulan.decline');
-    // Review usulan
-    Route::get('/usulan/{id}/review', [App\Http\Controllers\Reviewer\ReviewerUsulanController::class, 'review'])->name('usulan.review');
-    Route::post('/usulan/{id}/review/submit', [App\Http\Controllers\Reviewer\ReviewerUsulanController::class, 'submitReview'])->name('usulan.review.submit');
-    Route::post('/usulan/{id}/review/revisi', [App\Http\Controllers\Reviewer\ReviewerUsulanController::class, 'requestRevision'])->name('usulan.review.revisi');   
-   Route::get('/usulan/{id}/download/{filename}', 
-            [ReviewerUsulanController::class, 'downloadFile']
-        )->name('usulan.download_file');
-
-    // Route tambahan reviewer tambahkan disini
+        Route::get('/usulan', [ReviewerUsulanController::class, 'index'])->name('usulan.index');
+        Route::get('/usulan/{id}', [ReviewerUsulanController::class, 'show'])->name('usulan.show');
+        Route::post('/usulan/{id}/accept', [ReviewerUsulanController::class, 'accept'])->name('usulan.accept');
+        Route::post('/usulan/{id}/decline', [ReviewerUsulanController::class, 'decline'])->name('usulan.decline');
+        Route::get('/usulan/{id}/review', [ReviewerUsulanController::class, 'review'])->name('usulan.review');
+        Route::post('/usulan/{id}/review/submit', [ReviewerUsulanController::class, 'submitReview'])->name('usulan.review.submit');
+        Route::post('/usulan/{id}/review/revisi', [ReviewerUsulanController::class, 'requestRevision'])->name('usulan.review.revisi');
+        Route::get('/usulan/{id}/download/{filename}', [ReviewerUsulanController::class, 'downloadFile'])->name('usulan.download_file');
     });
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -215,11 +187,9 @@ Route::middleware(['auth', 'role:dosen'])
 
         Route::get('/dashboard', [DosenController::class, 'index'])->name('dashboard');
 
-        // Pengumuman
         Route::get('/pengumuman', [DosenPengumumanController::class, 'index'])->name('pengumuman.index');
         Route::get('/pengumuman/{id}', [DosenPengumumanController::class, 'show'])->name('pengumuman.show');
 
-        // Usulan
         Route::get('/usulan', [UsulanController::class, 'index'])->name('usulan.index');
         Route::get('/usulan/create/{id_pengumuman}', [UsulanController::class, 'create'])->name('usulan.create');
         Route::post('/usulan/store', [UsulanController::class, 'store'])->name('usulan.store');
@@ -231,10 +201,9 @@ Route::middleware(['auth', 'role:dosen'])
         Route::get('/search', [UsulanController::class, 'search'])->name('search');
     });
 
-    
 /*
 |--------------------------------------------------------------------------
-| Auth Routes (Breeze)
+| Auth Routes
 |--------------------------------------------------------------------------
 */
 require __DIR__ . '/auth.php';
