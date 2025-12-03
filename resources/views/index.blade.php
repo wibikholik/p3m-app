@@ -189,7 +189,7 @@
 
     <!-- Section Title -->
     <div class="container section-title" data-aos="fade-up">
-        <h2>Berita Terbaru</h2>
+        <h2>Pengumuman Terbaru</h2>
         <p>Jadikan penelitian & pengabdian mu jadi lebih mudah</p>
     </div><!-- End Section Title -->
 
@@ -199,43 +199,38 @@
 
         <ul class="portfolio-filters isotope-filters" data-aos="fade-up" data-aos-delay="100">
             <li data-filter="*" class="filter-active">All</li>
-            <li data-filter=".filter-pengabdian">Pengabdian</li>
-            <li data-filter=".filter-pkm">PKM</li>
-            <li data-filter=".filter-penelitian">Penelitian</li>
+            @if(isset($kategori) && $kategori->count())
+                @foreach($kategori as $k)
+                    <li data-filter=".filter-{{ \Illuminate\Support\Str::slug($k->nama_kategori) }}">{{ $k->nama_kategori }}</li>
+                @endforeach
+            @else
+                <li data-filter=".filter-umum">Umum</li>
+            @endif
         </ul><!-- End Portfolio Filters -->
 
         <div class="row gy-4 isotope-container" data-aos="fade-up" data-aos-delay="200">
-
-            <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-pkm">
-            <img src="assets/img/masonry-portfolio/Rekt.jpg" class="img-fluid" alt="">
-            <div class="portfolio-info">
-                <h4>Rapat senat terbuka untuk transparansi visi misi politeknik negeri subang.</h4>
-                <p>Periode program dari tanggal 25 september 2025 sampai 10 september 2025</p>
-                <a href="assets/img/masonry-portfolio/Rekt.jpg" title="Product 1" data-gallery="portfolio-gallery-product" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>
-                <a href="portfolio-details.html" title="More Details" class="details-link"><i class="bi bi-link-45deg"></i></a>
-            </div>
-            </div><!-- End Portfolio Item -->
-
-            <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-penelitian">
-            <img src="assets/img/masonry-portfolio/POLSUB.png" class="img-fluid" alt="">
-            <div class="portfolio-info">
-                <h4>Program Penelitian dan pengabdian bidang teknik Mesin </h4>
-                <p>Periode program dari tanggal 25 september 2025 sampai 10 september 2025</p>
-                <a href="assets/img/masonry-portfolio/POLSUB.png" title="Product 1" data-gallery="portfolio-gallery-product" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>
-                <a href="portfolio-details.html" title="More Details" class="details-link"><i class="bi bi-link-45deg"></i></a>
-            </div>
-            </div><!-- End Portfolio Item -->
-
-            <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-penelitian">
-            <img src="assets/img/masonry-portfolio/gkb.jpeg" class="img-fluid" alt="">
-            <div class="portfolio-info">
-                <h4>Program Penelitian dan pengabdian bidang kesehatan berbasis teknologi</h4>
-                <p>Periode program dari tanggal 25 september 2025 sampai 10 september 2025</p>
-                <a href="assets/img/masonry-portfolio/gkb.jpeg" title="Product 1" data-gallery="portfolio-gallery-product" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>
-                <a href="portfolio-details.html" title="More Details" class="details-link"><i class="bi bi-link-45deg"></i></a>
-            </div>
-            </div><!-- End Portfolio Item -->
-
+            @if(isset($pengumuman) && $pengumuman->count())
+                @foreach($pengumuman as $item)
+                    @php $slug = \Illuminate\Support\Str::slug($item->kategori->nama_kategori ?? 'umum'); @endphp
+                    <div class="col-lg-4 col-md-6 portfolio-item isotope-item filter-{{ $slug }}">
+                        <div class="portfolio-image">
+                            <div class="ratio ratio-16x9">
+                                <img src="{{ $item->gambar ? asset('storage/' . $item->gambar) : asset('assets/img/masonry-portfolio/default.png') }}" class="img-fluid" alt="{{ $item->judul }}" style="object-fit:cover; width:100%; height:100%;">
+                            </div>
+                        </div>
+                        <div class="portfolio-info">
+                            <h4>{{ $item->judul }}</h4>
+                            <p>{{ \Illuminate\Support\Str::limit(strip_tags($item->isi), 120) }}</p>
+                            <a href="{{ $item->gambar ? asset('storage/' . $item->gambar) : asset('assets/img/masonry-portfolio/default.png') }}" title="{{ $item->judul }}" data-gallery="portfolio-gallery-product" class="glightbox preview-link"><i class="bi bi-zoom-in"></i></a>
+                            <a href="{{ route('pengumuman.show', $item->id) }}" title="More Details" class="details-link"><i class="bi bi-link-45deg"></i></a>
+                        </div>
+                    </div><!-- End Portfolio Item -->
+                @endforeach
+            @else
+                <div class="col-12">
+                    <p class="text-center">Belum ada pengumuman terbaru.</p>
+                </div>
+            @endif
         </div><!-- End Portfolio Container -->
 <br>
         </div>
@@ -253,7 +248,7 @@
     <div class="container">
         <!-- Section Title -->
         <div class="container section-title" data-aos="fade-up">
-            <h2>Pengumuman Terbaru</h2>
+            <h2>Berita Terbaru</h2>
             <p>Jadikan penelitian & pengabdian mu jadi lebih mudah</p>
         </div><!-- End Section Title -->
         <div class="row gy-4">

@@ -8,6 +8,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ReviewerController;
 use App\Http\Controllers\DosenController;
 use App\Http\Controllers\LandingPageController;
+use App\Http\Controllers\PengumumanController as PublicPengumumanController;
 use App\Http\Controllers\Admin\PengumumanController;
 use App\Http\Controllers\Admin\KategoriPengumumanController;
 use App\Http\Controllers\Admin\UserController;
@@ -26,6 +27,10 @@ use App\Http\Controllers\Admin\UsulanKelengkapanController;
 
 
 Route::get('/', [LandingPageController::class, 'index'])->name('home');
+
+// Public pengumuman listing & detail (landing page links)
+Route::get('/pengumuman', [PublicPengumumanController::class, 'index'])->name('pengumuman.index');
+Route::get('/pengumuman/{id}', [PublicPengumumanController::class, 'show'])->name('pengumuman.show');
 
 /*
 |--------------------------------------------------------------------------
@@ -133,7 +138,7 @@ Route::post('/usulan/{id}/assign-reviewer', [AdminUsulanController::class, 'assi
 
         // ** END ADMIN USULAN ROUTES **
 
-    
+
 
         // Master kelengkapan (CRUD)
     Route::middleware(['auth','role:admin'])
@@ -168,7 +173,7 @@ Route::post('/usulan/{id}/assign-reviewer', [AdminUsulanController::class, 'assi
             Route::get('/usulan/{id}/checklist', [UsulanKelengkapanController::class,'editChecklist'])->name('usulan.checklist.edit');
             Route::post('/usulan/{id}/checklist', [UsulanKelengkapanController::class,'updateChecklist'])->name('usulan.checklist.update');
         });
-    
+
 
 /*
 |--------------------------------------------------------------------------
@@ -195,8 +200,8 @@ Route::middleware(['auth', 'role:reviewer'])
     // Review usulan
     Route::get('/usulan/{id}/review', [App\Http\Controllers\Reviewer\ReviewerUsulanController::class, 'review'])->name('usulan.review');
     Route::post('/usulan/{id}/review/submit', [App\Http\Controllers\Reviewer\ReviewerUsulanController::class, 'submitReview'])->name('usulan.review.submit');
-    Route::post('/usulan/{id}/review/revisi', [App\Http\Controllers\Reviewer\ReviewerUsulanController::class, 'requestRevision'])->name('usulan.review.revisi');   
-   Route::get('/usulan/{id}/download/{filename}', 
+    Route::post('/usulan/{id}/review/revisi', [App\Http\Controllers\Reviewer\ReviewerUsulanController::class, 'requestRevision'])->name('usulan.review.revisi');
+   Route::get('/usulan/{id}/download/{filename}',
             [ReviewerUsulanController::class, 'downloadFile']
         )->name('usulan.download_file');
 
@@ -231,7 +236,7 @@ Route::middleware(['auth', 'role:dosen'])
         Route::get('/search', [UsulanController::class, 'search'])->name('search');
     });
 
-    
+
 /*
 |--------------------------------------------------------------------------
 | Auth Routes (Breeze)
