@@ -19,49 +19,112 @@ class Usulan extends Model
         'skema',
         'abstrak',
         'file_usulan',
+        'file_revisi',
         'status',
+        'status_revisi',
+        'catatan_revisi_admin',
+        'tanggal_revisi',
+        'status_lanjut',
     ];
 
-    // Relasi ke User (Ketua)
+    protected $casts = [
+        'tanggal_revisi' => 'datetime',
+        'created_at'     => 'datetime',
+        'updated_at'     => 'datetime',
+    ];
+
+    /**
+     * ============================
+     *   RELASI REVIEWER
+     * ============================
+     */
     public function reviewers()
 {
-    return $this->belongsToMany(\App\Models\User::class, 'usulan_reviewer', 'usulan_id', 'reviewer_id')
-        ->withPivot(['id','assigned_by','assigned_at','deadline','status','catatan_assign','catatan_reviewer'])
-        ->withTimestamps();
-}
-// App/Models/User.php (tambah method)
-public function reviewerTasks()
-{
-    return $this->belongsToMany(\App\Models\Usulan::class, 'usulan_reviewer', 'reviewer_id', 'usulan_id')
-        ->withPivot(['id','assigned_by','assigned_at','deadline','status','catatan_assign','catatan_reviewer'])
-        ->withTimestamps();
+    return $this->belongsToMany(
+        User::class,
+        'usulan_reviewer',
+        'usulan_id',
+        'reviewer_id'
+    )->withPivot('status','assigned_at','submitted_at')->withTimestamps();
 }
 
-    public function user()
+    /**
+     * ============================
+     *   RELASI PENGUSUL
+     * ============================
+     */
+    public function pengusul()
     {
         return $this->belongsTo(User::class, 'id_user');
     }
 
-    // Relasi ke Pengumuman
+    /**
+     * ============================
+     *   RELASI PENGUMUMAN
+     * ============================
+     */
     public function pengumuman()
     {
         return $this->belongsTo(Pengumuman::class, 'id_pengumuman');
     }
 
-    // Relasi ke Anggota
+    /**
+     * ============================
+     *   RELASI ANGGOTA
+     * ============================
+     */
     public function anggota()
     {
         return $this->hasMany(Anggota::class, 'id_usulan');
     }
 
-    public function pengusul()
+    /**
+     * ============================
+     *   RELASI KELENGKAPAN
+     * ============================
+     */
+    public function kelengkapan()
     {
-    return $this->belongsTo(User::class, 'id_user');
+        return $this->hasMany(UsulanKelengkapan::class, 'usulan_id');
     }
 
-    public function kelengkapan()
-{
-    return $this->hasMany(UsulanKelengkapan::class, 'usulan_id');
-}
+    /**
+     * ============================
+     *   PENILAIAN AWAL
+     * ============================
+     */
+    public function penilaian()
+    {
+        return $this->hasMany(UsulanPenilaian::class, 'usulan_id');
+    }
 
+    public function penilaianPerReviewer($reviewer_id)
+    {
+        return $this->penilaian()->where('reviewer_id', $reviewer_id);
+    }
+
+    /**
+     * ============================
+     *   PENILAIAN REVISI
+     * ============================
+     */
+    public function penilaianRevisi()
+    {
+        return $this->hasMany(UsulanPenilaianRevisi::class, 'usulan_id');
+    }
+
+    public function penilaianRevisiPerReviewer($reviewer_id)
+    {
+        return $this->penilaianRevisi()->where('reviewer_id', $reviewer_id);
+    }
+
+    /**
+     * ============================
+     *   LAPORAN KEMAJUAN
+     * ============================
+     */
+    public function laporanKemajuan()
+    {
+        return $this->hasMany(LaporanKemajuan::class, 'id_usulan');
+    }
 }

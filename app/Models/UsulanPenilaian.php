@@ -16,4 +16,16 @@ class UsulanPenilaian extends Model
     {
         return $this->belongsTo(MasterPenilaian::class, 'komponen_id');
     }
+    public function usulan()
+    {
+        return $this->belongsTo(Usulan::class);
+    }
+
+    public function reviewer()
+    {
+        return $this->belongsTo(User::class, 'reviewer_id');
+    }
+
+   
+
 }

@@ -27,18 +27,21 @@ class UsulanController extends Controller
     // ===========================
     // Tampilkan daftar usulan
     // ===========================
-    public function index()
-    {
-        $this->checkAccess();
-        $user = Auth::user();
+   public function index()
+{
+    $this->checkAccess(); // Pastikan user punya akses ke halaman ini
+    $user = Auth::user();
 
-        $usulans = $user->hasRole('dosen')
-            ? Usulan::where('id_user', $user->id)->get()
-            : Usulan::all();
+    // Ambil usulan dosen jika role dosen, atau semua usulan untuk admin
+    $usulans = $user->hasRole('dosen')
+        ? Usulan::where('id_user', $user->id)->get()
+        : Usulan::all();
 
-        return view('dosen.usulan.index', compact('usulans'));
-    }
+    // Tidak perlu filter lagi di controller, Blade akan menampilkan tombol "Buat Laporan"
+    // hanya untuk usulan yang status_lanjut = 'siap_laporan'
 
+    return view('dosen.usulan.index', compact('usulans'));
+} 
     // ===========================
     // Form tambah usulan
     // ===========================
@@ -48,26 +51,8 @@ class UsulanController extends Controller
         $user = Auth::user();
 
         $pengumuman = Pengumuman::latest()->first();
-
-        // Tentukan skema sesuai jabatan fungsional
-        $skemaList = [];
-        switch($user->jabatan_akademik) {
-            case 'Biasa':
-            case 'Asisten Ahli':
-                $skemaList['PDP'] = 'Penelitian Dosen Pemula (PDP)';
-                break;
-            case 'Lektor':
-            case 'Lektor Kepala':
-                $skemaList['P2V'] = 'Penelitian Produk Vokasi (P2V)';
-                break;
-        }
-        // Semua dosen bisa ajukan PKM
-        $skemaList['PKM'] = 'Penerapan Iptek Masyarakat (PKM)';
-
-        // Daftar dosen untuk anggota
-        $dosenList = User::whereHas('roles', function($q){
-            $q->where('name', 'dosen');
-        })->get();
+        $skemaList = $this->getSkemaList($user);
+        $dosenList = $this->getDosenList();
 
         return view('dosen.usulan.create', compact('pengumuman','skemaList','dosenList'));
     }
@@ -84,7 +69,6 @@ class UsulanController extends Controller
             return back()->withErrors('Anda tidak memiliki hak untuk membuat usulan.');
         }
 
-        // Validasi input
         $request->validate([
             'judul' => 'required|string|max:255',
             'skema' => 'required|string|max:100',
@@ -93,25 +77,10 @@ class UsulanController extends Controller
             'id_pengumuman' => 'required|exists:pengumuman,id',
         ]);
 
-        // Cek total usulan user (max 2)
-        $totalUsulan = Usulan::where('id_user', $user->id)->count();
-        if ($totalUsulan >= 2) {
-            return back()->withErrors('Anda sudah mencapai batas 2 usulan.');
-        }
-
-        // Cek jumlah hibah sebagai ketua dengan skema yang sama (max 2)
-        $usulanKetuaSamaSkema = Usulan::where('id_user', $user->id)
-            ->where('skema', $request->skema)
-            ->count();
-
-        if ($usulanKetuaSamaSkema >= 2) {
-            return back()->withErrors('Anda sudah pernah mendapatkan hibah dengan skema yang sama 2 kali sebagai ketua.');
-        }
-
         // Upload file PDF
         $filePath = $request->file('file_usulan')->store('usulan_files', 'public');
 
-        // Simpan usulan baru
+        // Simpan usulan
         $usulan = Usulan::create([
             'id_user' => $user->id,
             'email_ketua' => $user->email,
@@ -123,7 +92,7 @@ class UsulanController extends Controller
             'status' => 'diajukan',
         ]);
 
-        // Simpan anggota tim jika ada
+        // Simpan anggota tim
         if ($request->has('anggota')) {
             foreach ($request->anggota as $anggota) {
                 if (!empty($anggota['nama'])) {
@@ -137,13 +106,9 @@ class UsulanController extends Controller
             }
         }
 
-        return redirect()->route('admin.usulan.index')->with('success', 'Usulan berhasil dibuat. Anda otomatis menjadi ketua.');
+        return redirect()->route('dosen.usulan.index')
+                         ->with('success', 'Usulan berhasil dibuat. Anda otomatis menjadi ketua.');
     }
-
-    // ===========================
-    // Relasi anggota
-    // ===========================
-    
 
     // ===========================
     // Detail usulan
@@ -158,7 +123,9 @@ class UsulanController extends Controller
             abort(403, 'Anda tidak memiliki akses ke usulan ini.');
         }
 
-        return view('dosen.usulan.show', compact('usulan'));
+        $pengumuman = Pengumuman::latest()->first();
+
+        return view('dosen.usulan.show', compact('usulan','pengumuman'));
     }
 
     // ===========================
@@ -174,46 +141,64 @@ class UsulanController extends Controller
             abort(403, 'Anda tidak memiliki akses untuk mengedit usulan ini.');
         }
 
-        return view('dosen.usulan.edit', compact('usulan'));
+        $pengumuman = Pengumuman::latest()->first();
+        $skemaList = $this->getSkemaList($user);
+        $dosenList = $this->getDosenList();
+
+        return view('dosen.usulan.edit', compact('usulan', 'pengumuman', 'skemaList', 'dosenList'));
     }
 
     // ===========================
     // Update usulan
     // ===========================
     public function update(Request $request, $id)
-    {
-        $this->checkAccess();
-        $user = Auth::user();
-        $usulan = Usulan::findOrFail($id);
+{
+    $usulan = Usulan::findOrFail($id);
 
-        if ($user->hasRole('dosen') && $usulan->id_user !== $user->id) {
-            return back()->withErrors('Anda tidak memiliki hak untuk mengedit usulan ini.');
-        }
-
+    // ====================
+    // Mode revisi
+    // ====================
+    if ($request->has('mode_revisi')) {
         $request->validate([
-            'judul' => 'required|string|max:255',
-            'skema' => 'required|string|max:100',
-            'abstrak' => 'required|string',
-            'file_usulan' => 'nullable|file|mimes:pdf|max:10240',
-            'id_pengumuman' => 'required|exists:pengumuman,id',
+            'file_revisi' => 'required|file|mimes:pdf|max:10240',
         ]);
 
-        if ($request->hasFile('file_usulan')) {
-            if ($usulan->file_usulan && Storage::disk('public')->exists($usulan->file_usulan)) {
-                Storage::disk('public')->delete($usulan->file_usulan);
-            }
-            $usulan->file_usulan = $request->file('file_usulan')->store('usulan_files', 'public');
-        }
+        $file = $request->file('file_revisi');
+        $path = $file->store('usulan/revisi', 'public');
 
         $usulan->update([
-            'judul' => $request->judul,
-            'skema' => $request->skema,
-            'abstrak' => $request->abstrak,
-            'id_pengumuman' => $request->id_pengumuman,
+            'file_revisi' => $path,
+            'status' => 'revisi_diajukan',
+            'status_revisi' => 'menunggu_verifikasi',
+            'tanggal_revisi' => now(),
         ]);
 
-        return redirect()->route('dosen.usulan.index')->with('success', 'Usulan berhasil diperbarui.');
+        return redirect()->route('dosen.usulan.show', $usulan->id)
+                         ->with('success', 'File revisi berhasil diunggah dan status diubah.');
     }
+
+    // ====================
+    // Edit normal
+    // ====================
+    $validated = $request->validate([
+        'judul' => 'required|string|max:255',
+        'skema' => 'required|string',
+        'abstrak' => 'required|string',
+        'file_usulan' => 'nullable|file|mimes:pdf|max:2048',
+    ]);
+
+    $usulan->update($validated);
+
+    if ($request->hasFile('file_usulan')) {
+        $path = $request->file('file_usulan')->store('usulan', 'public');
+        $usulan->update(['file_usulan' => $path]);
+    }
+
+    return redirect()->route('dosen.usulan.show', $usulan->id)
+                     ->with('success', 'Usulan berhasil diperbarui.');
+}
+
+
 
     // ===========================
     // Hapus usulan
@@ -232,8 +217,43 @@ class UsulanController extends Controller
             Storage::disk('public')->delete($usulan->file_usulan);
         }
 
+        if ($usulan->file_revisi && Storage::disk('public')->exists($usulan->file_revisi)) {
+            Storage::disk('public')->delete($usulan->file_revisi);
+        }
+
         $usulan->delete();
 
-        return redirect()->route('dosen.usulan.index')->with('success', 'Usulan berhasil dihapus.');
+        return redirect()->route('dosen.usulan.index')
+                         ->with('success', 'Usulan berhasil dihapus.');
+    }
+
+    // ===========================
+    // Helper: daftar skema sesuai jabatan
+    // ===========================
+    private function getSkemaList($user)
+    {
+        $skemaList = [];
+        switch($user->jabatan_akademik) {
+            case 'Biasa':
+            case 'Asisten Ahli':
+                $skemaList['PDP'] = 'Penelitian Dosen Pemula (PDP)';
+                break;
+            case 'Lektor':
+            case 'Lektor Kepala':
+                $skemaList['P2V'] = 'Penelitian Produk Vokasi (P2V)';
+                break;
+        }
+        $skemaList['PKM'] = 'Penerapan Iptek Masyarakat (PKM)';
+        return $skemaList;
+    }
+
+    // ===========================
+    // Helper: daftar dosen
+    // ===========================
+    private function getDosenList()
+    {
+        return User::whereHas('roles', function($q){
+            $q->where('name', 'dosen');
+        })->get();
     }
 }

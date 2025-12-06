@@ -9,7 +9,7 @@
                 <div class="card-body">
                     <h3 class="card-title">{{ $item->judul }}</h3>
                     <p class="text-muted">Kategori: {{ $item->kategori->nama_kategori ?? 'Umum' }}</p>
-                    <p>{{ \\Illuminate\\Support\\Str::limit(strip_tags($item->isi), 200) }}</p>
+                    <p>{{ \Illuminate\Support\Str::limit(strip_tags($item->isi), 200) }}</p>
                     <a href="{{ route('pengumuman.show', $item->id) }}" class="btn btn-primary">Baca selengkapnya</a>
                 </div>
             </div>

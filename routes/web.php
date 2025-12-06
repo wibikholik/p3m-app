@@ -22,11 +22,14 @@ use App\Http\Controllers\Dosen\UsulanController;
 use App\Http\Controllers\Dosen\DosenPengumumanController;
 use App\Http\Controllers\Admin\AdminUsulanController;
 use App\Http\Controllers\Reviewer\ReviewerUsulanController;
+use App\Http\Controllers\Reviewer\PenilaianUsulanController;
 
 // Kelengkapan & Penilaian
 use App\Http\Controllers\Admin\MasterKelengkapanController;
 use App\Http\Controllers\Admin\UsulanKelengkapanController;
 use App\Http\Controllers\Admin\MasterPenilaianController;
+
+use App\Http\Controllers\Dosen\LaporankemajuanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -116,6 +119,14 @@ Route::middleware(['auth', 'role:admin'])
         // Checklist per-usulan
         Route::get('/usulan/{id}/checklist', [UsulanKelengkapanController::class,'editChecklist'])->name('usulan.checklist.edit');
         Route::post('/usulan/{id}/checklist', [UsulanKelengkapanController::class,'updateChecklist'])->name('usulan.checklist.update');
+        
+        // Rute Rekap dan Finalisasi
+        // Menggunakan nama usulan.rekap dan usulan.finalize
+        Route::get('/usulan/{usulan}/rekap', [AdminUsulanController::class,'show'])->name('usulan.rekap');
+        Route::post('/usulan/{usulan}/finalize', [AdminUsulanController::class,'finalize'])->name('usulan.finalize'); 
+        
+        // Rute untuk Verifikasi Revisi (juga digunakan di view rekap-penilaian.blade.php)
+        Route::post('/usulan/{usulan}/verify-revision', [UsulanController::class, 'verifyRevision'])->name('usulan.verify-revision');
     });
 
 /*
@@ -129,15 +140,35 @@ Route::middleware(['auth', 'role:reviewer'])
     ->group(function () {
 
         Route::get('/dashboard', [ReviewerController::class, 'index'])->name('dashboard');
+
+        // Daftar Usulan
         Route::get('/usulan', [ReviewerUsulanController::class, 'index'])->name('usulan.index');
         Route::get('/usulan/{id}', [ReviewerUsulanController::class, 'show'])->name('usulan.show');
+        
         Route::post('/usulan/{id}/accept', [ReviewerUsulanController::class, 'accept'])->name('usulan.accept');
         Route::post('/usulan/{id}/decline', [ReviewerUsulanController::class, 'decline'])->name('usulan.decline');
-        Route::get('/usulan/{id}/review', [ReviewerUsulanController::class, 'review'])->name('usulan.review');
-        Route::post('/usulan/{id}/review/submit', [ReviewerUsulanController::class, 'submitReview'])->name('usulan.review.submit');
-        Route::post('/usulan/{id}/review/revisi', [ReviewerUsulanController::class, 'requestRevision'])->name('usulan.review.revisi');
+
+        // Review menggunakan multi-komponen
+        Route::get('/usulan/{usulan}/review', [PenilaianUsulanController::class, 'review'])->name('usulan.review');
+        Route::post('/usulan/{usulan}/review/submit', [PenilaianUsulanController::class, 'submitReview'])->name('penilaian.review.submit');
+
+        // Download file
+        
         Route::get('/usulan/{id}/download/{filename}', [ReviewerUsulanController::class,'downloadFile'])->name('usulan.download_file');
-    });
+    
+        
+        Route::get('/usulan/{usulan}/hasil', [PenilaianUsulanController::class, 'showHasilPenilaian'])->name('penilaian.hasil');
+ Route::get('/usulan/{id}/review-revisi', [ReviewerUsulanController::class, 'reviewRevisi'])->name('usulan.review_revisi');
+ Route::post('/usulan/{id}/review-revisi', [ReviewerUsulanController::class, 'submitReviewRevisi'])->name('usulan.submit_revisi');
+
+
+ Route::get('/laporan-kemajuan', [App\Http\Controllers\Reviewer\LaporanKemajuanController::class, 'index'])->name('laporan-kemajuan.index');
+    Route::get('/laporan-kemajuan/{id}', [App\Http\Controllers\Reviewer\LaporanKemajuanController::class, 'show'])->name('laporan-kemajuan.show');
+    Route::post('/laporan-kemajuan/{id}/nilai', [App\Http\Controllers\Reviewer\LaporanKemajuanController::class, 'nilai'])->name('laporan-kemajuan.nilai');
+});
+     
+    
+
 
 /*
 |--------------------------------------------------------------------------
@@ -162,6 +193,29 @@ Route::middleware(['auth', 'role:dosen'])
         Route::post('/usulan/{id}/submit', [UsulanController::class, 'submitUsulan'])->name('usulan.submit');
 
         Route::get('/search', [UsulanController::class, 'search'])->name('search');
+       
+        // Laporan Kemajuan
+       Route::get('/laporan-kemajuan', [LaporankemajuanController::class, 'index'])
+    ->name('laporan-kemajuan.index');
+
+Route::get('/laporan-kemajuan/create/{id_usulan}', [LaporankemajuanController::class, 'create'])
+    ->name('laporan-kemajuan.create');
+
+Route::post('/laporan-kemajuan/store/{id_usulan}', [LaporankemajuanController::class, 'store'])
+    ->name('laporan-kemajuan.store');
+
+Route::get('/laporan-kemajuan/{id}', [LaporankemajuanController::class, 'show'])
+    ->name('laporan-kemajuan.show');
+
+Route::get('/laporan-kemajuan/{id}/edit', [LaporankemajuanController::class, 'edit'])
+    ->name('laporan-kemajuan.edit');
+    Route::delete('/laporan-kemajuan/{id}', [LaporankemajuanController::class, 'destroy'])
+    ->name('laporan-kemajuan.destroy');
+Route::put('/laporan-kemajuan/{id}', [LaporankemajuanController::class, 'update'])
+    ->name('laporan-kemajuan.update');
+
+
+        
     });
 
 require __DIR__.'/auth.php';
