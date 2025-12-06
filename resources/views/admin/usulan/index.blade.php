@@ -106,6 +106,15 @@
                                         Detail
                                     </a>
 
+                                    {{-- Tombol Tugaskan Reviewer (hanya untuk status LOLOS ADMINISTRASI) --}}
+                                    @if(strtolower($item->status) === 'lolos_administrasi')
+                                    <a href="{{ route('admin.usulan.assignReviewer.page', $item->id) }}"
+                                        class="text-white bg-indigo-600 hover:bg-indigo-700 px-3 py-1.5 rounded-lg shadow-md transition whitespace-nowrap">
+                                        Tugaskan Reviewer
+                                    </a>
+                                    @endif
+
+
                                     {{-- Rekap Penilaian --}}
                                     @if($item->reviewers_count > 0)
                                     <a href="{{ route('admin.usulan.rekap', $item->id) }}"

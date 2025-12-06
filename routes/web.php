@@ -150,7 +150,10 @@ Route::middleware(['auth', 'role:reviewer'])
 
         // Review menggunakan multi-komponen
         Route::get('/usulan/{usulan}/review', [PenilaianUsulanController::class, 'review'])->name('usulan.review');
-        Route::post('/usulan/{usulan}/review/submit', [PenilaianUsulanController::class, 'submitReview'])->name('penilaian.review.submit');
+        Route::post('/usulan/{usulan}/review/submit', 
+    [PenilaianUsulanController::class, 'submitReview']
+        )->name('penilaian.submit');
+
 
         // Download file
         
