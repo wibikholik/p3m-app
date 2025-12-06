@@ -29,7 +29,7 @@ use App\Http\Controllers\Admin\MasterKelengkapanController;
 use App\Http\Controllers\Admin\UsulanKelengkapanController;
 use App\Http\Controllers\Admin\MasterPenilaianController;
 
-use App\Http\Controllers\Dosen\LaporankemajuanController;
+use App\Http\Controllers\Dosen\LaporankemajuanDosenController;
 
 /*
 |--------------------------------------------------------------------------
@@ -196,29 +196,29 @@ Route::middleware(['auth', 'role:dosen'])
         Route::post('/usulan/{id}/submit', [UsulanController::class, 'submitUsulan'])->name('usulan.submit');
 
         Route::get('/search', [UsulanController::class, 'search'])->name('search');
-       
-        // Laporan Kemajuan
-       Route::get('/laporan-kemajuan', [LaporankemajuanController::class, 'index'])
-    ->name('laporan-kemajuan.index');
-
-Route::get('/laporan-kemajuan/create/{id_usulan}', [LaporankemajuanController::class, 'create'])
-    ->name('laporan-kemajuan.create');
-
-Route::post('/laporan-kemajuan/store/{id_usulan}', [LaporankemajuanController::class, 'store'])
-    ->name('laporan-kemajuan.store');
-
-Route::get('/laporan-kemajuan/{id}', [LaporankemajuanController::class, 'show'])
-    ->name('laporan-kemajuan.show');
-
-Route::get('/laporan-kemajuan/{id}/edit', [LaporankemajuanController::class, 'edit'])
-    ->name('laporan-kemajuan.edit');
-    Route::delete('/laporan-kemajuan/{id}', [LaporankemajuanController::class, 'destroy'])
-    ->name('laporan-kemajuan.destroy');
-Route::put('/laporan-kemajuan/{id}', [LaporankemajuanController::class, 'update'])
-    ->name('laporan-kemajuan.update');
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | LAPORAN KEMAJUAN 
+        |--------------------------------------------------------------------------
+        */
         
+        // Resource utama
+        Route::resource('laporan-kemajuan', LaporanKemajuanDosenController::class)
+        ->names('laporankemajuan')
+        ->parameters(['laporankemajuan' => 'id']);
+
+
+        // Custom route untuk create & store pakai id_usulan
+        Route::get('/laporan-kemajuan/create/{id_usulan}', 
+            [LaporanKemajuanDosenController::class, 'create'])
+            ->name('laporankemajuan.create-usulan');
+
+        Route::post('/laporan-kemajuan/store/{id_usulan}', 
+            [LaporanKemajuanDosenController::class, 'store'])
+            ->name('laporankemajuan.store-usulan');
+
     });
 
 require __DIR__.'/auth.php';

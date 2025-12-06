@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Reviewer;
+namespace App\Http\Controllers\Dosen;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\LaporanKemajuan;
 use Illuminate\Support\Facades\Auth;
 
-class LaporanKemajuanController extends Controller
+class LaporanKemajuanDosenController extends Controller
 {
     public function index()
     {

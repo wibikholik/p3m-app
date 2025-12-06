@@ -76,6 +76,17 @@
                 Daftar Pengabdian
             </a>
         </div>
+
+        <!-- Laporan Kemajuan -->
+        <a href="{{ route('dosen.laporankemajuan.index') }}" 
+           class="block py-3 px-4 rounded-lg flex items-center gap-3 transition duration-150 ease-in-out 
+                  {{ request()->routeIs('dosen.laporankemajuan.*') ? $activeClass : $defaultClass }}">
+            <!-- Icon Dashboard -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h6v6H3V3zm0 12h6v6H3v-6zm12-12h6v6h-6V3zm0 12h6v6h-6v-6z"/>
+            </svg>
+            Laporan Kemajuan
+        </a>
         
         <!-- Anda bisa menambahkan menu lain di sini -->
     </nav>
