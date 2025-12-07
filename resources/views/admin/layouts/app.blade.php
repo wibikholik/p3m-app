@@ -22,6 +22,12 @@
     <!-- Layout styles -->
     <link rel="stylesheet" href="{{ asset('assets/css/vertical-light-layout/style.css') }}">
     <!-- End layout styles -->
+<<<<<<< HEAD
+=======
+    <!-- Sidebar Menu Styles -->
+    <link rel="stylesheet" href="{{ asset('assets/css/sidebar-menu.css') }}">
+    <!-- End sidebar menu styles -->
+>>>>>>> refs/remotes/origin/main
     <link rel="shortcut icon" href="{{ asset('assets/images/favicon.png') }}" />
     @yield('extra-css')
 </head>
@@ -31,7 +37,7 @@
     @include('admin.layouts.sidebar')
 
     {{-- Bagian kanan (konten utama + navbar + footer) --}}
-    <div class="flex-1 flex flex-col ml-64">
+    <div class="flex-1 flex flex-col">
 
         {{-- Navbar --}}
         @include('admin.layouts.navbar')
@@ -72,6 +78,12 @@
     <!-- Custom js for this page -->
     <script src="{{ asset('assets/js/dashboard.js') }}"></script>
     <!-- End custom js for this page -->
+<<<<<<< HEAD
+=======
+    <!-- Sidebar Menu Script -->
+    <script src="{{ asset('assets/js/sidebar-menu.js') }}"></script>
+    <!-- End sidebar menu script -->
+>>>>>>> refs/remotes/origin/main
     @yield('extra-js')
 </body>
 </html>
