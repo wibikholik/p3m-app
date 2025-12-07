@@ -11,57 +11,71 @@
         </div>
         <p class="mt-2 text-gray-600">Ini adalah halaman utama dashboard admin untuk memantau aktivitas P3M.</p>
     </div>
-
-    <h2 class="text-3xl font-extrabold text-gray-900 mb-6">Ringkasan Statistik</h2>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        
-        <!-- Total Reviewer -->
-        <div class="bg-white shadow-lg rounded-xl p-6 border-t-4 border-blue-500 transition duration-300 hover:shadow-xl">
-            <div class="flex items-center justify-between">
-                <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Reviewer</h3>
-                <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+    <!-- Statistics Section -->
+<div class="row">
+  <div class="col-md-12 grid-margin">
+    <div class="card">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="d-sm-flex align-items-baseline report-summary-header">
+              <h3    class="font-weight-semibold">Ringkasan Statistik</h3> <span class="ms-auto">Updated Report</span> <button class="btn btn-icons border-0 p-2"><i class="icon-refresh"></i></button>
             </div>
-            <p class="mt-4 text-3xl font-extrabold text-blue-600">
-                {{ $totalReviewer ?? 0 }}
-            </p>
-            <a href="{{ route('admin.users.index', ['role' => 'reviewer']) }}" class="text-xs text-blue-500 hover:text-blue-700 font-medium mt-2 block">Lihat Detail &rarr;</a>
+          </div>
         </div>
-
-        <!-- Total Dosen -->
-        <div class="bg-white shadow-lg rounded-xl p-6 border-t-4 border-green-500 transition duration-300 hover:shadow-xl">
-            <div class="flex items-center justify-between">
-                <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Dosen</h3>
-                <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-2.414-2.414A1 1 0 0015.586 6H7a2 2 0 00-2 2v11a2 2 0 002 2z"></path></svg>
+        <div class="row report-inner-cards-wrapper">
+            <div class=" col-md -6 col-xl report-inner-card">
+                <div class="inner-card-text">
+                    <span class="report-title">Total Reviewer</span>
+                        <h4>
+                            {{ $totalReviewer ?? 0 }}
+                        </h4>
+                    <span href="{{ route('admin.users.index', ['role' => 'reviewer']) }}" class="text-xs text-blue-500 hover:text-blue-700 font-medium mt-2 block"> Lihat Detail &rarr;</span>
+                </div>
+                <div class="inner-card-icon bg-success">
+                <i class="icon-rocket"></i>
+                </div>
             </div>
-            <p class="mt-4 text-3xl font-extrabold text-green-600">
-                {{ $totalDosen ?? 0 }}
-            </p>
-            <a href="{{ route('admin.users.index', ['role' => 'dosen']) }}" class="text-xs text-green-500 hover:text-green-700 font-medium mt-2 block">Lihat Detail &rarr;</a>
-        </div>
-
-        <!-- Pengumuman Aktif -->
-        <div class="bg-white shadow-lg rounded-xl p-6 border-t-4 border-yellow-500 transition duration-300 hover:shadow-xl">
-            <div class="flex items-center justify-between">
-                <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Pengumuman Aktif</h3>
-                <svg class="w-8 h-8 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+            <div class="col-md-6 col-xl report-inner-card">
+                <div class="inner-card-text">
+                    <span class="report-title">Total Dosen</span>
+                    <h4>
+                        {{ $totalDosen ?? 0 }}
+                    </h4>
+                    <a href="{{ route('admin.users.index', ['role' => 'dosen']) }}" class="text-xs text-green-500 hover:text-green-700 font-medium mt-2 block">Lihat Detail &rarr;</a>
+                </div>
+                <div class="inner-card-icon bg-danger">
+                    <i class="fa fa-graduation-cap"></i>
+                </div>
             </div>
-            <p class="mt-4 text-3xl font-extrabold text-yellow-600">
-                {{ $pengumuman ?? 0 }}
-            </p>
-            <a href="{{ route('admin.pengumuman.index') }}" class="text-xs text-yellow-500 hover:text-yellow-700 font-medium mt-2 block">Lihat Detail &rarr;</a>
-        </div>
-
-        <!-- Total Usulan (Placeholder) -->
-        <div class="bg-white shadow-lg rounded-xl p-6 border-t-4 border-purple-500 transition duration-300 hover:shadow-xl">
-            <div class="flex items-center justify-between">
-                <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wider">Total Usulan Masuk</h3>
-                <svg class="w-8 h-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            <div class="col-md-6 col-xl report-inner-card">
+                <div class="inner-card-text">
+                    <span class="report-title">Pengumuman Aktif</span>
+                    <h4>
+                        {{ $pengumuman ?? 0 }}
+                    </h4>
+                    <a href="{{ route('admin.pengumuman.index') }}" class="text-xs text-yellow-500 hover:text-yellow-700 font-medium mt-2 block">Lihat Detail &rarr;</a>
+                </div>
+                <div class="inner-card-icon bg-warning">
+                    <i class="icon-globe-alt"></i>
+                </div>
             </div>
-            <p class="mt-4 text-3xl font-extrabold text-purple-600">
-                {{ $totalUsulan ?? 'N/A' }} 
-            </p>
-             <span class="text-xs text-gray-500 mt-2 block">Data Usulan</span>
+            <div class="col-md-6 col-xl report-inner-card">
+                <div class="inner-card-text">
+                    <span class="report-title">Total Usulan Masuk</span>
+                    <h4>
+                        {{ $totalUsulan ?? 'N/A' }}
+                    </h4>
+                    <span class="report-count"> Data Usulans &rarr;</span>
+                </div>
+                <div class="inner-card-icon bg-primary">
+                    <i class="icon-diamond"></i>
+                </div>
+            </div>
         </div>
+      </div>
     </div>
+  </div>
+</div>
+
 @endsection

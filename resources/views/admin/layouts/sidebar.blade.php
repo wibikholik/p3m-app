@@ -1,11 +1,11 @@
 <!--
-    File ini berisi perbaikan untuk sidebar, diubah menjadi tema TERANG (LIGHT THEME) 
+    File ini berisi perbaikan untuk sidebar, diubah menjadi tema TERANG (LIGHT THEME)
     agar tidak menyilaukan/membuat mata lelah, sesuai permintaan pengguna.
 -->
-<aside class="w-64 bg-white shadow-lg flex flex-col h-screen fixed top-0 overflow-y-auto" 
-       x-data="{ 
-            openPenelitian: {{ request()->routeIs('admin.penelitian.*') || request()->routeIs('admin.pengabdian.*') ? 'true' : 'false' }}, 
-            openPengumuman: {{ request()->routeIs('admin.pengumuman.*') || request()->routeIs('admin.kategori-pengumuman.*') ? 'true' : 'false' }} 
+<aside class="w-64 bg-white shadow-lg flex flex-col h-screen fixed top-0 overflow-y-auto"
+       x-data="{
+            openPenelitian: {{ request()->routeIs('admin.penelitian.*') || request()->routeIs('admin.pengabdian.*') ? 'true' : 'false' }},
+            openPengumuman: {{ request()->routeIs('admin.pengumuman.*') || request()->routeIs('admin.kategori-pengumuman.*') ? 'true' : 'false' }}
        }">
     <!-- Header -->
     <div class="p-6 border-b border-gray-200 bg-white">
@@ -26,8 +26,8 @@
         @endphp
 
         <!-- Dashboard -->
-        <a href="{{ route('admin.dashboard') }}" 
-           class="block py-3 px-4 rounded-lg flex items-center gap-3 transition duration-150 ease-in-out 
+        <a href="{{ route('admin.dashboard') }}"
+           class="block py-3 px-4 rounded-lg flex items-center gap-3 transition duration-150 ease-in-out
                   {{ request()->routeIs('admin.dashboard') ? $activeClass : $defaultClass }}">
             <!-- Icon Dashboard -->
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -37,8 +37,8 @@
         </a>
 
         <!-- Pengumuman (Dropdown) -->
-        <button @click="openPengumuman = !openPengumuman" 
-                class="w-full flex items-center justify-between py-3 px-4 rounded-lg transition duration-150 ease-in-out 
+        <button @click="openPengumuman = !openPengumuman"
+                class="w-full flex items-center justify-between py-3 px-4 rounded-lg transition duration-150 ease-in-out
                        {{ request()->routeIs('admin.pengumuman.*') || request()->routeIs('admin.kategori-pengumuman.*') ? $activeClass : $defaultClass }}">
             <div class="flex items-center gap-3">
                 <!-- Icon Pengumuman -->
@@ -51,23 +51,24 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
             </svg>
         </button>
+
         <!-- Dropdown Menu Pengumuman -->
         <div x-show="openPengumuman" x-collapse x-cloak class="pl-8 space-y-1">
-            <a href="{{ route('admin.pengumuman.index') }}" 
-               class="block py-2 px-4 rounded-lg transition duration-150 ease-in-out 
+            <a href="{{ route('admin.pengumuman.index') }}"
+               class="block py-2 px-4 rounded-lg transition duration-150 ease-in-out
                       {{ request()->routeIs('admin.pengumuman.*') && !request()->routeIs('admin.kategori-pengumuman.*') ? $activeSubClass : $defaultSubClass }}">
                Daftar Pengumuman
             </a>
-            <a href="{{ route('admin.kategori-pengumuman.index') }}" 
-               class="block py-2 px-4 rounded-lg transition duration-150 ease-in-out 
+            <a href="{{ route('admin.kategori-pengumuman.index') }}"
+               class="block py-2 px-4 rounded-lg transition duration-150 ease-in-out
                       {{ request()->routeIs('admin.kategori-pengumuman.*') ? $activeSubClass : $defaultSubClass }}">
                Daftar Kategori
             </a>
         </div>
 
         <!-- Penelitian dan Pengabdian (Dropdown) -->
-        <button @click="openPenelitian = !openPenelitian" 
-                class="w-full flex items-center justify-between py-3 px-4 rounded-lg transition duration-150 ease-in-out 
+        <button @click="openPenelitian = !openPenelitian"
+                class="w-full flex items-center justify-between py-3 px-4 rounded-lg transition duration-150 ease-in-out
                        {{ request()->routeIs('admin.penelitian.*') || request()->routeIs('admin.pengabdian.*') ? $activeClass : $defaultClass }}">
             <div class="flex items-center gap-3">
                 <!-- Icon Penelitian -->
@@ -88,20 +89,20 @@
         </div>
 
        <!-- Dropdown Manajemen Operasional -->
-        <div x-data="{ 
-            open: {{ request()->routeIs('admin.usulan.*') 
-                    || request()->routeIs('admin.kelengkapan.*') 
-                    || request()->routeIs('admin.penilaian.*') 
-                    || request()->routeIs('admin.users.*') ? 'true' : 'false' }} 
+        <div x-data="{
+            open: {{ request()->routeIs('admin.usulan.*')
+                    || request()->routeIs('admin.kelengkapan.*')
+                    || request()->routeIs('admin.penilaian.*')
+                    || request()->routeIs('admin.users.*') ? 'true' : 'false' }}
         }" class="mb-2">
 
             <!-- Trigger -->
             <button @click="open = !open"
-                class="w-full py-3 px-4 flex justify-between items-center rounded-lg transition duration-150 ease-in-out 
-                {{ request()->routeIs('admin.usulan.*') 
-                    || request()->routeIs('admin.kelengkapan.*') 
-                    || request()->routeIs('admin.penilaian.*') 
-                    || request()->routeIs('admin.users.*') 
+                class="w-full py-3 px-4 flex justify-between items-center rounded-lg transition duration-150 ease-in-out
+                {{ request()->routeIs('admin.usulan.*')
+                    || request()->routeIs('admin.kelengkapan.*')
+                    || request()->routeIs('admin.penilaian.*')
+                    || request()->routeIs('admin.users.*')
                     ? $activeClass : $defaultClass }}">
 
                 <div class="flex items-center gap-3">
