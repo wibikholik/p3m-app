@@ -1,0 +1,77 @@
+/* Sidebar Menu Toggle Styles */
+
+.menu-toggle {
+  cursor: pointer !important;
+  user-select: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.menu-toggle:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.collapse-menu {
+  animation: slideDown 0.3s ease-out;
+  padding-left: 0.5rem;
+  background-color: rgba(0, 0, 0, 0.02);
+  border-left: 3px solid rgba(0, 123, 255, 0.3);
+  overflow: hidden;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 1;
+    max-height: 500px;
+  }
+  to {
+    opacity: 0;
+    max-height: 0;
+  }
+}
+
+.sub-menu {
+  list-style: none;
+  padding-left: 0 !important;
+  margin: 0 !important;
+}
+
+.sub-menu .nav-item {
+  margin: 0;
+}
+
+.sub-menu .nav-link {
+  padding: 0.5rem 1rem !important;
+  font-size: 0.875rem;
+  color: inherit;
+  transition: all 0.2s ease;
+}
+
+.sub-menu .nav-link:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  padding-left: 1.25rem !important;
+}
+
+.menu-toggle.active {
+  background-color: rgba(0, 123, 255, 0.1);
+  color: #007bff;
+  font-weight: 500;
+}
+
+.menu-toggle.active i.menu-icon {
+  transform: rotate(90deg);
+  transition: transform 0.3s ease;
+}
