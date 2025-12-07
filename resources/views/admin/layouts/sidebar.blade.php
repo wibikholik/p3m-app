@@ -1,23 +1,21 @@
 <aside class="w-64 bg-white shadow-lg flex flex-col h-screen fixed top-0 overflow-y-auto" 
     x-data="{ 
-        // MEMPERBARUI LOGIKA ACTIVE STATE: Mencakup Laporan Akhir
+        // Logic for dropdown active state
         openUsulanMonev: {{ request()->routeIs('admin.usulan.*') || request()->routeIs('admin.monev.laporan_kemajuan.*') || request()->routeIs('admin.monev.laporan_akhir.*') ? 'true' : 'false' }},
         openPengumuman: {{ request()->routeIs('admin.pengumuman.*') || request()->routeIs('admin.kategori-pengumuman.*') ? 'true' : 'false' }}, 
         openOperasional: {{ request()->routeIs('admin.kelengkapan.*') || request()->routeIs('admin.penilaian.*') || request()->routeIs('admin.users.*') ? 'true' : 'false' }} 
     }">
+    
     <div class="p-6 border-b border-gray-200 bg-white">
         <h1 class="text-xl font-extrabold text-gray-900 tracking-wider">P3M DASHBOARD</h1>
     </div>
 
     <nav class="flex-1 mt-4 space-y-1 px-3">
         @php
-            // Kelas aktif (Warna biru terang untuk kontras pada latar belakang putih)
+            // Classes for styling
             $activeClass = 'bg-blue-500 text-white shadow-md font-semibold';
-            // Kelas default (Teks gelap, hover abu-abu muda)
             $defaultClass = 'text-gray-700 hover:bg-gray-100 hover:text-gray-900';
-            // Kelas aktif untuk sub-menu
             $activeSubClass = 'text-blue-700 bg-blue-100 font-semibold';
-            // Kelas default untuk sub-menu
             $defaultSubClass = 'text-gray-600 hover:bg-gray-100 hover:text-gray-900';
         @endphp
 
@@ -152,7 +150,6 @@
                     {{ request()->routeIs('admin.users.*') ? $activeSubClass : $defaultSubClass }}">
                     Manajemen User
                 </a>
-
             </div>
         </div>
 
