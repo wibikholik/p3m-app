@@ -9,6 +9,7 @@
     <div class="bg-white shadow rounded-lg p-4 overflow-auto">
         <h2 class="text-lg font-semibold mb-4">File Revisi Usulan</h2>
         @if($usulan->file_revisi)
+            {{-- PERHATIAN: Pastikan path 'storage/' . $usulan->file_revisi benar untuk iframe --}}
             <iframe src="{{ asset('storage/' . $usulan->file_revisi) }}" class="w-full h-[500px]" frameborder="0"></iframe>
         @else
             <p class="text-gray-500">File revisi belum diunggah oleh dosen.</p>
@@ -21,7 +22,8 @@
         <form action="{{ route('reviewer.usulan.submit_revisi', $usulan->id) }}" method="POST">
             @csrf
 
-            @foreach($komponen_penilaian as $kriteria)
+            {{-- PERBAIKAN: Mengganti $komponen_penilaian menjadi $komponen --}}
+            @foreach($komponen as $kriteria)
             <div class="mb-4">
                 <label class="block font-medium">{{ $kriteria->nama }} (Bobot: {{ $kriteria->bobot }}%)</label>
                 <input type="number" name="nilai[{{ $kriteria->id }}]" min="0" max="100"

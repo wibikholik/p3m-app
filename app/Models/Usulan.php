@@ -127,4 +127,11 @@ class Usulan extends Model
     {
         return $this->hasMany(LaporanKemajuan::class, 'id_usulan');
     }
+    public function laporanAkhir()
+    {
+        // Karena di tabel laporan_akhirs kita menggunakan foreign key 'usulan_id'
+        // Ini adalah relasi one-to-one
+        return $this->hasOne(LaporanAkhir::class, 'usulan_id');
+    }
 }
+

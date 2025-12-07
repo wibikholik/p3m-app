@@ -42,27 +42,36 @@
                         @endif
                     </td>
                     <td class="px-6 py-4 text-center">
+                        {{-- STATUS REVISI DARI TABEL USULAN --}}
                         @switch($item->status_revisi)
+                            @case('diajukan')
                             @case('revisi_diajukan')
-                                <span class="px-3 py-1 bg-yellow-500 text-white rounded-full text-sm font-semibold">Revisi Diajukan</span>
+                                <span class="px-3 py-1 bg-orange-500 text-white rounded-full text-sm font-semibold">Revisi Diajukan</span>
                                 @break
-                            @case('review_revisi_selesai')
-                                <span class="px-3 py-1 bg-green-500 text-white rounded-full text-sm font-semibold">Revisi Selesai</span>
+                            @case('menunggu_verifikasi')
+                                <span class="px-3 py-1 bg-orange-500 text-white rounded-full text-sm font-semibold">Revisi Diajukan</span>
                                 @break
                             @case('dikembalikan')
-                                <span class="px-3 py-1 bg-red-500 text-white rounded-full text-sm font-semibold">Perlu Perbaikan</span>
+                                <span class="px-3 py-1 bg-red-500 text-white rounded-full text-sm font-semibold">Menunggu Pengusul</span>
+                                @break
+                            @case('disetujui')
+                                <span class="px-3 py-1 bg-indigo-500 text-white rounded-full text-sm font-semibold">Revisi Selesai Dinilai</span>
                                 @break
                             @default
-                                <span class="px-3 py-1 bg-gray-400 text-white rounded-full text-sm font-semibold">Belum Revisi</span>
+                                <span class="px-3 py-1 bg-gray-400 text-white rounded-full text-sm font-semibold">Tidak Ada Revisi</span>
                         @endswitch
                     </td>
                     <td class="px-6 py-4 text-center">
-                        @if($item->status_revisi == 'revisi_diajukan')
+                        {{-- AKSI --}}
+                        @if($item->status_revisi == 'menunggu_verifikasi' || $item->status_revisi == 'revisi_diajukan')
+                            {{-- Jika revisi diajukan, beri tombol review revisi --}}
                             <a href="{{ route('reviewer.usulan.review_revisi', $item->id) }}" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Review Revisi</a>
-                        @elseif(!$item->sudah_direview)
-                            <a href="{{ route('reviewer.usulan.review', $item->id) }}" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">Review</a>
-                        @else
+                        @elseif($item->sudah_direview)
+                            {{-- Jika sudah review awal (dan tidak ada revisi yang aktif), beri tombol lihat hasil --}}
                             <a href="{{ route('reviewer.penilaian.hasil', $item->id) }}" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Lihat Hasil</a>
+                        @else
+                            {{-- Jika belum review awal --}}
+                            <a href="{{ route('reviewer.usulan.review', $item->id) }}" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Review</a>
                         @endif
                     </td>
                 </tr>

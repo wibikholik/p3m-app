@@ -8,6 +8,8 @@
     <h1 class="text-3xl font-extrabold mb-6 text-gray-900">{{ $usulan->judul }}</h1>
     <p class="text-sm text-gray-500 mb-6">Status Usulan: <span class="font-semibold text-indigo-600">{{ ucfirst($usulan->status) }}</span></p>
 
+    ---
+
     {{-- PENILAIAN AWAL --}}
     <div class="bg-white shadow rounded-lg p-6 mb-6">
         <h3 class="text-xl font-semibold mb-4 text-gray-800">Penilaian Awal Reviewer</h3>
@@ -24,29 +26,39 @@
                 @foreach($totalPerReviewer as $rev)
                 <tr class="hover:bg-gray-50">
                     <td class="px-4 py-3 border">{{ $rev['reviewer']->name ?? 'Reviewer Tidak Ditemukan' }}</td>
-                    <td class="px-4 py-3 border text-center font-bold @if($rev['nilai']>=80) text-green-600 @else text-yellow-600 @endif">{{ number_format($rev['nilai'],2) }}</td>
+                    <td class="px-4 py-3 border text-center font-bold @if($rev['nilai']>=80) text-green-600 @else text-yellow-600 @endif">
+                        **{{ number_format($rev['nilai'], 2) }}**
+                    </td>
                     <td class="px-4 py-3 border text-sm text-gray-700">
                         <ul class="list-disc pl-5">
                             @foreach($rev['detail'] as $d)
                                 <li>
-                                    <strong>{{ $d->komponen?->nama ?? 'Komponen Tidak Ditemukan' }}:</strong> 
-                                    {{ $d->nilai }} (<em>{{ $d->catatan ?? 'Tidak Ada Catatan' }}</em>)
+                                    {{-- Penilaian Awal: Memanggil relasi komponen --}}
+                                    <strong>{{ $d->komponen?->nama ?? 'Komponen Tdk Ditemukan' }}:</strong> 
+                                    {{ $d->nilai }} (Bobot: {{ $d->komponen?->bobot ?? 'N/A'}}%) - (<em>{{ $d->catatan ?? 'Tidak Ada Catatan' }}</em>)
                                 </li>
                             @endforeach
                         </ul>
                     </td>
                     <td class="px-4 py-3 border text-center">
-                        @if(isset($rev['reviewer']->pivot) && $rev['reviewer']->pivot->sudah_direview)
+                        {{-- Status Review: Mengacu pada status usulan global --}}
+                        @if($allReviewed)
                             <span class="px-2 inline-flex text-xs font-semibold rounded-full bg-green-100 text-green-800">Sudah Direview</span>
                         @else
-                            <span class="px-2 inline-flex text-xs font-semibold rounded-full bg-red-100 text-red-800">Belum Direview</span>
+                            @if(isset($rev['reviewer']->pivot) && $rev['reviewer']->pivot->sudah_direview)
+                                <span class="px-2 inline-flex text-xs font-semibold rounded-full bg-green-100 text-green-800">Sudah Direview</span>
+                            @else
+                                <span class="px-2 inline-flex text-xs font-semibold rounded-full bg-red-100 text-red-800">Belum Direview</span>
+                            @endif
                         @endif
-                    </td>
+                    </td> 
                 </tr>
                 @endforeach
             </tbody>
         </table>
     </div>
+
+    ---
 
     {{-- PENILAIAN REVISI --}}
     <div class="bg-yellow-50 shadow rounded-lg p-6 mb-6">
@@ -63,13 +75,16 @@
                 @foreach($totalRevisiPerReviewer as $rev)
                 <tr class="hover:bg-gray-50">
                     <td class="px-4 py-3 border">{{ $rev['reviewer']->name ?? 'Reviewer Tidak Ditemukan' }}</td>
-                    <td class="px-4 py-3 border text-center font-bold @if($rev['nilai']>=80) text-green-600 @else text-yellow-600 @endif">{{ number_format($rev['nilai'],2) }}</td>
+                    <td class="px-4 py-3 border text-center font-bold @if($rev['nilai']>=80) text-green-600 @else text-yellow-600 @endif">
+                        **{{ number_format($rev['nilai'], 2) }}**
+                    </td>
                     <td class="px-4 py-3 border text-sm text-gray-700">
                         <ul class="list-disc pl-5">
                             @foreach($rev['detail'] as $d)
                                 <li>
-                                    <strong>{{ $d->kriteria?->nama ?? 'Kriteria Tidak Ditemukan' }}:</strong> 
-                                    {{ $d->nilai }} (<em>{{ $d->catatan ?? 'Tidak Ada Catatan' }}</em>)
+                                    {{-- PERBAIKAN: Mengakses komponen/kriteria dari relasi yang seharusnya dimuat --}}
+                                    <strong>{{ $d->komponen?->nama ?? 'Kriteria Tdk Ditemukan' }}:</strong> 
+                                    {{ $d->nilai }} (Bobot: {{ $d->komponen?->bobot ?? 'N/A'}}%) - (<em>{{ $d->catatan ?? 'Tidak Ada Catatan' }}</em>)
                                 </li>
                             @endforeach
                         </ul>
@@ -80,7 +95,9 @@
         </table>
     </div>
 
-    {{-- FINALISASI --}}
+    ---
+    
+    {{-- FINALISASI (TETAP DIPERTAHANKAN) --}}
     <div class="mt-6 pt-4 border-t border-gray-200">
         <h4 class="font-bold text-lg mb-3">Tindakan Keputusan Final</h4>
         @if(!$allReviewed)
@@ -114,11 +131,13 @@
         @endif
     </div>
 
+    ---
+    
     {{-- HASIL FINAL --}}
     @if($usulan->nilai_final !== null)
         <div class="bg-indigo-50 border-l-4 border-indigo-500 p-6 shadow-xl rounded-lg mt-6">
             <h3 class="text-xl font-bold text-indigo-800 mb-2">Keputusan Akhir</h3>
-            <p class="text-lg text-gray-700">Total Nilai Rata-rata: <strong class="text-2xl text-indigo-700">{{ number_format($usulan->nilai_final,2) }}</strong></p>
+            <p class="text-lg text-gray-700">Total Nilai Rata-rata: <strong class="text-2xl text-indigo-700">{{ number_format($usulan->nilai_final, 2) }}</strong></p>
             <p class="text-lg text-gray-700">Status Final: <strong class="text-2xl @if($usulan->status=='Diterima') text-green-600 @elseif($usulan->status=='Menunggu Revisi') text-yellow-600 @else text-red-600 @endif">{{ ucfirst($usulan->status) }}</strong></p>
         </div>
     @endif

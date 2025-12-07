@@ -14,7 +14,7 @@ class ReviewerUsulanController extends Controller
     // ===========================
     // Daftar tugas review
     // ===========================
-   public function index()
+    public function index()
     {
         $reviewerId = Auth::id();
 
@@ -93,9 +93,9 @@ class ReviewerUsulanController extends Controller
         return view('reviewer.usulan.review_revisi', compact('usulan', 'pengusul', 'pivot', 'komponen_penilaian', 'nilai_lama'));
     }
 
-    // ===========================
-    // Submit review normal
-    // ===========================
+    // =======================================================
+    // Submit review normal (DENGAN DEBUGGING DD())
+    // =======================================================
     public function submitReview(Request $request, $id)
     {
         $reviewerId = Auth::id();
@@ -105,6 +105,7 @@ class ReviewerUsulanController extends Controller
             'catatan' => 'required|string',
         ]);
 
+        // 1. Update status di tabel pivot (usulan_reviewer)
         DB::table('usulan_reviewer')
             ->where('usulan_id', $id)
             ->where('reviewer_id', $reviewerId)
@@ -115,8 +116,47 @@ class ReviewerUsulanController extends Controller
                 'updated_at' => now(),
             ]);
 
+        // 2. Logika untuk mengubah status di tabel usulans (Opsi 2 Multi-Reviewer)
+        $totalReviewer = DB::table('usulan_reviewer')->where('usulan_id', $id)->count();
+        $reviewerSelesai = DB::table('usulan_reviewer')
+            ->where('usulan_id', $id)
+            ->where('sudah_direview', true)
+            ->count();
+        
+        // ==================================================
+        // LANGKAH DEBUGGING: Hentikan dan tampilkan hitungan
+        // Hapus/komentari baris dd() ini jika debugging selesai!
+        // ==================================================
+        dd([
+            'Usulan ID' => $id,
+            'Total Reviewer Ditugaskan' => $totalReviewer,
+            'Reviewer Yang Sudah Selesai' => $reviewerSelesai,
+            'Kondisi Selesai' => ($totalReviewer > 0 && $totalReviewer == $reviewerSelesai)
+        ]);
+        // ==================================================
+        
+        // Lanjutkan: Logika Update Status
+        if ($totalReviewer > 0 && $totalReviewer == $reviewerSelesai) {
+            // Jika semua reviewer sudah selesai, ubah status usulan menjadi 'selesai_direview'
+            DB::table('usulans')
+                ->where('id', $id)
+                ->update([
+                    'status' => 'selesai_direview',
+                    'updated_at' => now(),
+                ]);
+        } else {
+            // Jika belum semua selesai, ubah status usulan menjadi 'sedang_direview'
+            DB::table('usulans')
+                ->where('id', $id)
+                ->whereNotIn('status', ['selesai_direview', 'diterima', 'ditolak'])
+                ->update([
+                    'status' => 'sedang_direview',
+                    'updated_at' => now(),
+                ]);
+        }
+
         return redirect()->route('reviewer.usulan.review', $id)
-            ->with('success', 'Review berhasil disimpan.');
+            ->with('success', 'Review berhasil disimpan. Status usulan diperbarui sesuai kemajuan review.');
     }
 
     // ===========================
@@ -152,7 +192,7 @@ class ReviewerUsulanController extends Controller
             ->update(['status_revisi' => 'disetujui']);
 
         return redirect()->route('reviewer.usulan.index')
-                         ->with('success', 'Review revisi berhasil disimpan.');
+            ->with('success', 'Review revisi berhasil disimpan.');
     }
 
     // ===========================

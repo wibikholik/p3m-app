@@ -9,7 +9,7 @@
     <div class="bg-white shadow rounded-lg p-4 overflow-auto">
         <h2 class="text-lg font-semibold mb-4">File Usulan</h2>
         @if($usulan->file)
-            <iframe src="{{ asset('storage/usulan/' . $usulan->file) }}" class="w-full h-[500px]" frameborder="0"></iframe>
+            <iframe src="{{ asset('storage/usulan_files/' . $usulan->file) }}" class="w-full h-[500px]" frameborder="0"></iframe>
         @else
             <p class="text-gray-500">File belum diunggah.</p>
         @endif

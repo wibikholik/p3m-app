@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Usulan;
 use App\Models\User;
+use App\Models\MasterPenilaian; // <-- PERBAIKAN 1: Import Model MasterPenilaian
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -41,98 +42,143 @@ class AdminUsulanController extends Controller
     }
 
     /**
-     * Menampilkan rekap review awal & revisi
+     * Menampilkan rekap review awal & revisi (Perbaikan Relasi Revisi)
      */
     public function show($id)
-{
-    $usulan = Usulan::with(['reviewers','penilaian.komponen','penilaian.reviewer','penilaianRevisi.komponen','penilaianRevisi.reviewer'])->findOrFail($id);
+    {
+        // PERBAIKAN 2: Menggunakan Model MasterPenilaian yang sudah di-import
+        $allKomponen = MasterPenilaian::pluck('nama', 'id');
+        $allBobot = MasterPenilaian::pluck('bobot', 'id');
+        
+        // 1. Ambil usulan dengan relasi yang dibutuhkan
+        $usulan = Usulan::with(['reviewers', 'penilaian.komponen', 'penilaian.reviewer', 'penilaianRevisi.reviewer'])->findOrFail($id);
 
-    $totalPerReviewer = [];
-    $totalRevisiPerReviewer = [];
+        $totalPerReviewer = [];
+        $totalRevisiPerReviewer = [];
 
-    foreach($usulan->reviewers as $reviewer){
-        // Penilaian awal
-        $nilaiReviewer = $usulan->penilaianPerReviewer($reviewer->id)->get();
-        $total = $nilaiReviewer->sum('nilai');
-        $totalPerReviewer[$reviewer->id] = [
-            'reviewer' => $reviewer,
-            'nilai' => $total,
-            'detail' => $nilaiReviewer
-        ];
+        foreach($usulan->reviewers as $reviewer){
+            
+            // --- 1. Penilaian Awal (Nilai Tertimbang) ---
+            $nilaiReviewer = $usulan->penilaianPerReviewer($reviewer->id)->get();
 
-        // Penilaian revisi
-        $nilaiRevisi = $usulan->penilaianRevisiPerReviewer($reviewer->id)->get();
-        $totalRevisi = $nilaiRevisi->sum('nilai');
-        $totalRevisiPerReviewer[$reviewer->id] = [
-            'reviewer' => $reviewer,
-            'nilai' => $totalRevisi,
-            'detail' => $nilaiRevisi
-        ];
+            $totalTertimbang = $nilaiReviewer->sum(function ($p) {
+                $bobot = $p->komponen->bobot ?? 0;
+                return ($p->nilai * $bobot / 100);
+            });
+            
+            $totalPerReviewer[$reviewer->id] = [
+                'reviewer' => $reviewer,
+                'nilai' => $totalTertimbang, 
+                'detail' => $nilaiReviewer
+            ];
+
+            // --- 2. Penilaian Revisi (Nilai Tertimbang) ---
+            $nilaiRevisi = $usulan->penilaianRevisiPerReviewer($reviewer->id)->get();
+
+            $totalRevisiTertimbang = 0;
+            
+            // Perbaiki relasi komponen pada setiap item revisi dan hitung total tertimbang
+            $nilaiRevisi = $nilaiRevisi->map(function ($p) use ($allKomponen, $allBobot, &$totalRevisiTertimbang) {
+                // Asumsi: Kolom di tabel revisi adalah 'kriteria_id'
+                $kriteriaId = $p->kriteria_id; 
+                $bobot = $allBobot[$kriteriaId] ?? 0;
+                $komponenNama = $allKomponen[$kriteriaId] ?? 'Kriteria Tdk Ditemukan';
+
+                // Buat objek komponen palsu untuk konsistensi view
+                $p->komponen = (object)['nama' => $komponenNama, 'bobot' => $bobot]; 
+                
+                // Hitung total tertimbang 
+                $totalRevisiTertimbang += ($p->nilai * $bobot / 100);
+                return $p;
+            });
+            
+            $totalRevisiPerReviewer[$reviewer->id] = [
+                'reviewer' => $reviewer,
+                'nilai' => $totalRevisiTertimbang, 
+                'detail' => $nilaiRevisi
+            ];
+        }
+
+        // 2. Cek semua reviewer sudah menilai DARI STATUS USULAN
+        $finalStatus = ['selesai_direview', 'Diterima', 'Ditolak', 'Menunggu Revisi', 'selesai_review_revisi'];
+        $allReviewed = in_array($usulan->status, $finalStatus);
+
+        // 3. Hitung nilai final sementara jika kriteria sudah terpenuhi
+        if ($allReviewed && $usulan->nilai_final === null) {
+             $avgFinalScore = collect($totalPerReviewer)->avg('nilai');
+             $usulan->nilai_final = $avgFinalScore; 
+        }
+
+        return view('admin.usulan.rekap', compact('usulan','totalPerReviewer','totalRevisiPerReviewer','allReviewed'));
     }
-
-    // cek semua reviewer sudah menilai
-    $allReviewed = $usulan->reviewers->every(fn($r) => $r->pivot->sudah_direview);
-
-    return view('admin.usulan.rekap', compact('usulan','totalPerReviewer','totalRevisiPerReviewer','allReviewed'));
-}
 
 
     /**
      * Finalisasi keputusan usulan
      */
     public function finalize(Request $request, Usulan $usulan)
-{
-    $averageScore = $usulan->penilaian()->avg('nilai');
+    {
+        // Hitung rata-rata tertimbang dari SEMUA reviewer untuk disimpan sebagai nilai final
+        $allReviewScores = DB::table('usulan_penilaian')
+            ->select(
+                DB::raw('SUM(up.nilai * mp.bobot / 100) as total_weighted_score')
+            )
+            ->from('usulan_penilaian as up')
+            ->join('master_penilaian as mp', 'up.komponen_id', '=', 'mp.id')
+            ->where('up.usulan_id', $usulan->id)
+            ->groupBy('up.reviewer_id')
+            ->pluck('total_weighted_score');
+            
+        $averageWeightedScore = $allReviewScores->avg();
 
-    DB::beginTransaction();
+        DB::beginTransaction();
 
-    try {
-        $usulan->nilai_final = $averageScore;
-        $action = $request->input('action');
+        try {
+            $usulan->nilai_final = $averageWeightedScore;
+            $action = $request->input('action');
 
-        if ($action === 'diterima') {
-            // Usulan diterima, langsung siap ke laporan kemajuan
-            $usulan->status = 'Diterima';
-            $usulan->status_revisi = 'disetujui';
-            $usulan->status_lanjut = 'siap_laporan'; // tambahkan ini
-            $message = 'Usulan berhasil ditetapkan DITERIMA dan siap untuk laporan kemajuan.';
+            if ($action === 'diterima') {
+                $usulan->status = 'Diterima';
+                $usulan->status_revisi = 'disetujui';
+                $usulan->status_lanjut = 'siap_laporan';
+                $message = 'Usulan berhasil ditetapkan DITERIMA dan siap untuk laporan kemajuan.';
 
-        } elseif ($action === 'ditolak') {
-            $usulan->status = 'Ditolak';
-            $usulan->status_revisi = null;
-            $usulan->status_lanjut = null; // tidak bisa lanjut
-            $message = 'Usulan berhasil ditetapkan DITOLAK.';
+            } elseif ($action === 'ditolak') {
+                $usulan->status = 'Ditolak';
+                $usulan->status_revisi = null;
+                $usulan->status_lanjut = null;
+                $message = 'Usulan berhasil ditetapkan DITOLAK.';
 
-        } elseif ($action === 'revisi') {
-            $request->validate([
-                'catatan_revisi' => 'required|string|min:10',
-            ], [
-                'catatan_revisi.required' => 'Catatan/Instruksi Revisi wajib diisi.',
-                'catatan_revisi.min' => 'Catatan minimal 10 karakter.',
-            ]);
+            } elseif ($action === 'revisi') {
+                $request->validate([
+                    'catatan_revisi' => 'required|string|min:10',
+                ], [
+                    'catatan_revisi.required' => 'Catatan/Instruksi Revisi wajib diisi.',
+                    'catatan_revisi.min' => 'Catatan minimal 10 karakter.',
+                ]);
 
-            $usulan->status = 'Menunggu Revisi';
-            $usulan->status_revisi = 'dikembalikan';
-            $usulan->catatan_revisi_admin = $request->catatan_revisi;
-            $usulan->status_lanjut = null; // belum siap laporan
-            $message = 'Usulan berhasil ditetapkan Menunggu Revisi.';
+                $usulan->status = 'Menunggu Revisi';
+                $usulan->status_revisi = 'dikembalikan';
+                $usulan->catatan_revisi_admin = $request->catatan_revisi;
+                $usulan->status_lanjut = null;
+                $message = 'Usulan berhasil ditetapkan Menunggu Revisi.';
 
-        } else {
+            } else {
+                DB::rollBack();
+                return redirect()->back()->with('error', 'Aksi finalisasi tidak valid.');
+            }
+
+            $usulan->save();
+            DB::commit();
+
+            return redirect()->back()->with('success', $message);
+
+        } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->with('error', 'Aksi finalisasi tidak valid.');
+            Log::error("Finalize Review Error: " . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal memproses keputusan final. Terjadi kesalahan sistem.');
         }
-
-        $usulan->save();
-        DB::commit();
-
-        return redirect()->back()->with('success', $message);
-
-    } catch (\Exception $e) {
-        DB::rollBack();
-        Log::error("Finalize Review Error: " . $e->getMessage());
-        return redirect()->back()->with('error', 'Gagal memproses keputusan final. Terjadi kesalahan sistem.');
     }
-}
 
     /**
      * Detail usulan

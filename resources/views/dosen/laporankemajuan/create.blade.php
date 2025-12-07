@@ -9,11 +9,12 @@
 
     <h2 class="text-2xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
         <span class="text-blue-600">Laporan Kemajuan</span>
-        — {{ Str::limit($usulan->judul, 60) }}
+        {{-- Menggunakan variabel usulan yang kini terdefinisi --}}
+        — {{ Str::limit($usulan->judul, 60) }} 
     </h2>
 
     <form action="{{ route('dosen.laporan-kemajuan.store', $usulan->id) }}" 
-          method="POST" enctype="multipart/form-data">
+        method="POST" enctype="multipart/form-data">
         @csrf
 
         {{-- Ringkasan --}}
