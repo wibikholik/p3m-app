@@ -7,23 +7,29 @@ use Illuminate\Http\Request;
 use App\Models\Usulan;
 use App\Models\LaporanAkhir;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Auth; // Pastikan Auth di-import
+use Illuminate\Support\Facades\Auth;
 
 class LaporanAkhirController extends Controller
 {
     /**
-     * Menampilkan usulan yang siap untuk Laporan Akhir (status_lanjut = menunggu_laporan_akhir).
+     * Menampilkan usulan yang siap untuk Laporan Akhir.
      */
     public function index()
     {
         $dosenId = Auth::user()->id;
         
-        // FILTER KEPEMILIKAN: Menggunakan id_user
+        // Memastikan filter kepemilikan (id_user) diterapkan pada semua kondisi status_lanjut
         $usulans = Usulan::where('id_user', $dosenId) 
-                         ->where('status_lanjut', 'menunggu_laporan_akhir')
-                         ->orWhere('status_lanjut', 'laporan_akhir_terkirim') 
-                         ->with('laporanAkhir')
-                         ->get();
+            ->where(function ($query) {
+                // Menarik usulan yang baru masuk tahap laporan akhir
+                $query->where('status_lanjut', 'menunggu_laporan_akhir') 
+                      // Menarik usulan yang sudah terkirim (untuk dilihat statusnya)
+                      ->orWhere('status_lanjut', 'selesai_laporan_akhir')
+                      ->orWhere('status_lanjut', 'laporan_akhir_terkirim'); 
+                      // Anda bisa menambahkan status lain di sini, misal: 'laporan_akhir_direvisi'
+            })
+            ->with('laporanAkhir')
+            ->get();
 
         return view('dosen.laporan_akhir.index', compact('usulans'));
     }
@@ -33,12 +39,13 @@ class LaporanAkhirController extends Controller
      */
     public function createOrEdit($usulanId)
     {
-        // FILTER KEPEMILIKAN: Menggunakan id_user
-        $usulan = Usulan::where('id_user', Auth::user()->id)
-                        ->findOrFail($usulanId);
-                        
+        $dosenId = Auth::user()->id;
+        
+        $usulan = Usulan::where('id_user', $dosenId)
+                         ->findOrFail($usulanId);
+                         
         // Cek apakah usulan sudah berada di tahap Laporan Akhir
-        if (!in_array($usulan->status_lanjut, ['menunggu_laporan_akhir', 'laporan_akhir_terkirim'])) {
+        if (!in_array($usulan->status_lanjut, ['menunggu_laporan_akhir', 'selesai_laporan_akhir','laporan_akhir_terkirim'])) {
             return redirect()->route('dosen.laporan_akhir.index')->with('error', 'Usulan ini belum memenuhi syarat untuk Laporan Akhir.');
         }
 
@@ -56,17 +63,19 @@ class LaporanAkhirController extends Controller
      */
     public function storeOrUpdate(Request $request, $usulanId)
     {
-        // FILTER KEPEMILIKAN: Menggunakan id_user
-        $usulan = Usulan::where('id_user', Auth::user()->id)
-                        ->findOrFail($usulanId);
+        $dosenId = Auth::user()->id;
         
+        $usulan = Usulan::where('id_user', $dosenId)
+                         ->findOrFail($usulanId);
+                         
         $laporanAkhir = LaporanAkhir::firstOrNew(['usulan_id' => $usulanId]);
 
         $rules = [
             'ringkasan_hasil' => 'required|string|max:1000',
             'publikasi_target' => 'nullable|string|max:500',
-            // File wajib jika belum ada, atau jika ada file baru diupload
-            'file_laporan_akhir' => $laporanAkhir->file_laporan_akhir ? 'nullable|file|mimes:pdf|max:10240' : 'required|file|mimes:pdf|max:10240', // 10MB
+            'file_laporan_akhir' => $laporanAkhir->file_laporan_akhir 
+                                    ? 'nullable|file|mimes:pdf|max:10240' 
+                                    : 'required|file|mimes:pdf|max:10240', // 10MB
         ];
 
         $request->validate($rules);
@@ -86,13 +95,13 @@ class LaporanAkhirController extends Controller
             'ringkasan_hasil' => $request->ringkasan_hasil,
             'publikasi_target' => $request->publikasi_target,
             'file_laporan_akhir' => $filePath,
-            'status' => 'Terkirim', // Change status to 'Terkirim' upon submission/update
+            'status' => 'Terkirim', // Laporan dianggap Terkirim setiap kali Dosen melakukan simpan/update
         ])->save();
         
         // Update usulan status_lanjut to indicate submission
         $usulan->update(['status_lanjut' => 'laporan_akhir_terkirim']);
 
-        $message = $laporanAkhir->wasRecentlyCreated ? 'Laporan Akhir berhasil dikirim.' : 'Laporan Akhir berhasil diperbarui.';
+        $message = $laporanAkhir->wasRecentlyCreated ? 'Laporan Akhir berhasil dikirim.' : 'Laporan Akhir berhasil diperbarui dan dikirim ulang.';
 
         return redirect()->route('dosen.laporan_akhir.index')->with('success', $message);
     }

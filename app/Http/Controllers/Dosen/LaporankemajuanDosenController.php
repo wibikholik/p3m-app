@@ -42,7 +42,7 @@ class LaporanKemajuanDosenController extends Controller
             })
             ->findOrFail($id);
 
-        return view('dosen.laporanKemajuan.show', compact('laporan'));
+        return view('dosen.laporanKemajuan.detail', compact('laporan'));
     }
     
     /**

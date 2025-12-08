@@ -12,6 +12,7 @@ class LaporanAkhirReviewerController extends Controller
 {
     /**
      * Menampilkan daftar semua Laporan Akhir yang ditugaskan kepada reviewer yang sedang login.
+     * Logic: Memastikan Laporan Akhir ini memiliki Usulan yang ditugaskan kepada Auth::id().
      */
     public function index()
     {
@@ -46,6 +47,7 @@ class LaporanAkhirReviewerController extends Controller
             ->findOrFail($id);
 
         // Cek apakah laporan sudah dinilai oleh reviewer ini
+        // Penilaian dianggap sudah dilakukan jika reviewer_id cocok DAN status bukan 'Terkirim'
         $is_reviewed = ($laporanAkhir->reviewer_id == $reviewerId && $laporanAkhir->status != 'Terkirim');
         
         return view('reviewer.laporan_akhir.show', compact('laporanAkhir', 'is_reviewed'));
@@ -59,14 +61,15 @@ class LaporanAkhirReviewerController extends Controller
         $reviewerId = Auth::id();
 
         $laporanAkhir = LaporanAkhir::with('usulan')
+            // Memastikan Laporan Akhir ini ditugaskan ke reviewer yang sedang login sebelum dinilai
             ->whereHas('usulan.reviewers', function ($q) use ($reviewerId) {
                 $q->where('users.id', $reviewerId);
             })
             ->findOrFail($id);
 
-        // Validasi: Hanya bisa menilai jika status Terkirim atau Perbaikan
+        // Validasi: Hanya bisa menilai jika status Terkirim atau Perbaikan (untuk revisi)
         if ($laporanAkhir->status !== 'Terkirim' && $laporanAkhir->status !== 'Perbaikan') {
-            return back()->with('error', 'Laporan Akhir ini tidak dapat dinilai ulang.');
+            return back()->with('error', 'Laporan Akhir ini tidak dapat dinilai ulang karena sudah selesai atau ditinjau penuh.');
         }
 
         $request->validate([
@@ -79,7 +82,7 @@ class LaporanAkhirReviewerController extends Controller
         $laporanAkhir->nilai_reviewer = $request->nilai;
         $laporanAkhir->catatan_reviewer = $request->catatan_reviewer;
         $laporanAkhir->status = $request->status_review;
-        $laporanAkhir->reviewer_id = $reviewerId; 
+        $laporanAkhir->reviewer_id = $reviewerId; // Menyimpan ID reviewer yang melakukan penilaian
         
         $laporanAkhir->save();
 

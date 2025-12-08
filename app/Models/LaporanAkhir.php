@@ -27,9 +27,9 @@ class LaporanAkhir extends Model
 
     public function usulan()
     {
-        return $this->belongsTo(Usulan::class);
+        return $this->belongsTo(\App\Models\Usulan::class, 'usulan_id');
     }
-    
+        
     public function reviewer()
     {
         return $this->belongsTo(User::class, 'reviewer_id');
