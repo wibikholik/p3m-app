@@ -105,7 +105,7 @@ class LaporanKemajuanController extends Controller
         
         $laporan->save();
 
-        return redirect()->route('reviewer.laporankemajuan.index')
+        return redirect()->route('reviewer.laporan-kemajuan.index')
             ->with('success', 'Penilaian Laporan Kemajuan berhasil disimpan. Status: ' . $laporan->status);
     }
 }
