@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Dashboard Admin P3M')</title>
 
-    {{-- Tailwind CSS (Dipanggil lebih dulu) --}}
+    {{-- Tailwind --}}
     <script src="https://cdn.tailwindcss.com"></script>
 
+    {{-- CSS Vendor --}}
     <link rel="stylesheet" href="{{ asset('assets/vendor/simple-line-icons/css/simple-line-icons.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/vendor/flag-icon-css/css/flag-icons.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/vendor/css/vendor.bundle.base.css') }}">
@@ -20,26 +21,24 @@
     <link rel="stylesheet" href="{{ asset('assets/css/sidebar-menu.css') }}">
 
     <link rel="shortcut icon" href="{{ asset('assets/images/favicon.png') }}" />
-    @yield('extra-css')
 </head>
 
-{{-- Menggunakan class bawaan template 'container-scroller' dan 'sidebar-fixed' untuk layout --}}
-<body class="bg-gray-100 container-scroller sidebar-fixed">
+<body class="container-scroller sidebar-fixed bg-gray-100">
 
-    {{-- BARU: CONTAINER UTAMA --}}
-    <div id="wrapper" class="flex min-h-screen">
+    {{-- ========== NAVBAR (WAJIB di sini) ========== --}}
+    @include('admin.layouts.navbar')
 
-        {{-- Sidebar --}}
+    {{-- ========== BODY WRAPPER ========== --}}
+    <div class="container-fluid page-body-wrapper">
+
+        {{-- Sidebar (Bootstrap Admin Style) --}}
         @include('admin.layouts.sidebar')
 
-        {{-- Main Wrapper for Navbar and Content (Tailwind structure is kept, but adjusted) --}}
-        <div class="main-panel flex-1 flex flex-col">
+        {{-- Main Panel --}}
+        <div class="main-panel">
 
-            {{-- Navbar --}}
-            @include('admin.layouts.navbar')
-
-            {{-- Konten Utama --}}
-            <div class="content-wrapper flex-grow p-6">
+            {{-- Content --}}
+            <div class="content-wrapper">
                 @yield('content')
             </div>
 
@@ -49,8 +48,7 @@
         </div>
     </div>
 
-
-    {{-- Vendor JS (Harus diletakkan di akhir body) --}}
+    {{-- JS Vendor --}}
     <script src="{{ asset('assets/vendor/js/vendor.bundle.base.js') }}"></script>
 
     <script src="{{ asset('assets/vendor/chart.js/chart.umd.js') }}"></script>
@@ -66,14 +64,4 @@
     <script src="{{ asset('assets/js/off-canvas.js') }}"></script>
     <script src="{{ asset('assets/js/hoverable-collapse.js') }}"></script>
     <script src="{{ asset('assets/js/misc.js') }}"></script>
-    <script src="{{ asset('assets/js/settings.js') }}"></script>
-    <script src="{{ asset('assets/js/todolist.js') }}"></script>
-
-    <script src="{{ asset('assets/js/dashboard.js') }}"></script>
-
-    <script src="{{ asset('assets/js/sidebar-menu.js') }}"></script>
-
-    @stack('scripts')
-    @yield('extra-js')
-</body>
-</html>
+    <script src="{{ a

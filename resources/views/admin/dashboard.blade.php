@@ -33,7 +33,7 @@
                     <span href="{{ route('admin.users.index', ['role' => 'reviewer']) }}" class="text-xs text-blue-500 hover:text-blue-700 font-medium mt-2 block"> Lihat Detail &rarr;</span>
                 </div>
                 <div class="inner-card-icon bg-success">
-                <i class="icon-rocket"></i>
+                <i class="fa fa-users"></i>
                 </div>
             </div>
             <div class="col-md-6 col-xl report-inner-card">
@@ -57,7 +57,7 @@
                     <a href="{{ route('admin.pengumuman.index') }}" class="text-xs text-yellow-500 hover:text-yellow-700 font-medium mt-2 block">Lihat Detail &rarr;</a>
                 </div>
                 <div class="inner-card-icon bg-warning">
-                    <i class="icon-globe-alt"></i>
+                    <i class="fa fa-calendar"></i>
                 </div>
             </div>
             <div class="col-md-6 col-xl report-inner-card">
@@ -69,7 +69,7 @@
                     <span class="report-count"> Data Usulans &rarr;</span>
                 </div>
                 <div class="inner-card-icon bg-primary">
-                    <i class="icon-diamond"></i>
+                    <i class="fa fa-envelope-o"></i>
                 </div>
             </div>
         </div>
