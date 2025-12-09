@@ -44,7 +44,22 @@
         </ul>
       </div>
     </li>
-
+<li class="nav-item">
+      <a class="nav-link menu-toggle" href="javascript:void(0);" onclick="toggleMenu(this, 'monev-menu')">
+        <span class="menu-title">Monev</span>
+        <i class="icon-graph menu-icon"></i> </a>
+      <div class="collapse-menu" id="monev-menu" style="display: none;">
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ route('admin.monev.laporan_kemajuan.index') }}">Laporan Kemajuan</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ route('admin.monev.laporan_akhir.index') }}">Laporan Akhir</a>
+          </li>
+        </ul>
+      </div>
+    </li>
+    <li class="nav-item flex-grow-1"></li>
     <!-- Manajemen Operasional -->
     <li class="nav-item">
       <a class="nav-link menu-toggle" href="javascript:void(0);" onclick="toggleMenu(this, 'operasional')">
