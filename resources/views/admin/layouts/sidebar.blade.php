@@ -2,22 +2,7 @@
   <ul class="nav">
     <li class="nav-item navbar-brand-mini-wrapper">
       <a class="nav-link navbar-brand brand-logo-mini" href="{{ route('admin.dashboard') }}">
-        <img src="{{ asset('assets/images/logo-mini.svg') }}" alt="logo" /></a>
-    </li>
-    <li class="nav-item nav-profile">
-      <a href="#" class="nav-link">
-        <div class="profile-image">
-          <img class="img-xs rounded-circle" src="{{ asset('assets/images/faces/face8.jpg') }}" alt="profile image">
-          <div class="dot-indicator bg-success"></div>
-        </div>
-        <div class="text-wrapper">
-          <p class="designation">Administrator</p>
-        </div>
-        <div class="icon-container">
-          <i class="icon-bubbles"></i>
-          <div class="dot-indicator bg-danger"></div>
-        </div>
-      </a>
+        <img src="{{ asset('assets/images/logo.svg') }}" alt="logo" /></a>
     </li>
 
     <li class="nav-item nav-category">
