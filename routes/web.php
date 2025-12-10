@@ -112,6 +112,14 @@ Route::middleware(['auth', 'role:admin'])
         Route::resource('users', UserController::class)->except(['show']);
         Route::post('users/{user}/block', [UserController::class, 'block'])->name('users.block');
         Route::post('users/{user}/unblock', [UserController::class, 'unblock'])->name('users.unblock');
+        Route::patch('users/{user}/assign-reviewer', [UserController::class, 'assignReviewer'])
+    ->name('users.assign_reviewer');
+
+        Route::patch('users/{user}/remove-reviewer', [UserController::class, 'removeReviewer'])
+            ->name('users.remove_reviewer');
+
+// Anda juga perlu memastikan rute block/unblock menggunakan PATCH
+
 
         // Usulan administrasi
         Route::get('/usulan', [AdminUsulanController::class, 'usulanIndex'])->name('usulan.index');
@@ -142,7 +150,7 @@ Route::middleware(['auth', 'role:admin'])
         // Rute untuk Verifikasi Revisi (juga digunakan di view rekap-penilaian.blade.php)
         Route::post('/usulan/{usulan}/verify-revision', [UsulanController::class, 'verifyRevision'])->name('usulan.verify-revision');
     });
-   Route::prefix('monev/laporan-kemajuan')
+    Route::prefix('monev/laporan-kemajuan')
     ->name('admin.monev.laporan_kemajuan.')
     ->group(function () {
         // Menggunakan LaporanKemajuanController
@@ -190,23 +198,23 @@ Route::middleware(['auth', 'role:reviewer'])
     
         
         Route::get('/usulan/{usulan}/hasil', [PenilaianUsulanController::class, 'showHasilPenilaian'])->name('penilaian.hasil');
- Route::get('/usulan/{id}/review-revisi', [PenilaianUsulanController::class, 'reviewRevisi'])->name('usulan.review_revisi');
- Route::post('/usulan/{id}/review-revisi/submit', [PenilaianUsulanController::class, 'submitReviewRevisi'])->name('usulan.submit_revisi');
+    Route::get('/usulan/{id}/review-revisi', [PenilaianUsulanController::class, 'reviewRevisi'])->name('usulan.review_revisi');
+    Route::post('/usulan/{id}/review-revisi/submit', [PenilaianUsulanController::class, 'submitReviewRevisi'])->name('usulan.submit_revisi');
 
 
- Route::get('/laporan-kemajuan', [App\Http\Controllers\Reviewer\LaporanKemajuanController::class, 'index'])->name('laporan-kemajuan.index');
-    Route::get('/laporan-kemajuan/{id}', [App\Http\Controllers\Reviewer\LaporanKemajuanController::class, 'show'])->name('laporan-kemajuan.show');
-    Route::post('/laporan-kemajuan/{id}/nilai', [App\Http\Controllers\Reviewer\LaporanKemajuanController::class, 'nilai'])->name('laporan-kemajuan.nilai');
+    Route::get('/laporan-kemajuan', [App\Http\Controllers\Reviewer\LaporanKemajuanController::class, 'index'])->name('laporan-kemajuan.index');
+        Route::get('/laporan-kemajuan/{id}', [App\Http\Controllers\Reviewer\LaporanKemajuanController::class, 'show'])->name('laporan-kemajuan.show');
+        Route::post('/laporan-kemajuan/{id}/nilai', [App\Http\Controllers\Reviewer\LaporanKemajuanController::class, 'nilai'])->name('laporan-kemajuan.nilai');
 
-});
-Route::prefix('laporan-akhir')
+    });
+    Route::prefix('laporan-akhir')
     ->name('reviewer.laporan_akhir.')
     ->group(function () {
         Route::get('/', [LaporanAkhirReviewerController::class, 'index'])->name('index');
         Route::get('/{id}', [LaporanAkhirReviewerController::class, 'show'])->name('show');
         Route::post('/{id}/nilai', [LaporanAkhirReviewerController::class, 'nilai'])->name('nilai');
     });
-     
+          
     
 
 
@@ -225,7 +233,10 @@ Route::middleware(['auth', 'role:dosen'])
         Route::get('/pengumuman/{id}', [DosenPengumumanController::class, 'show'])->name('pengumuman.show');
 
         Route::get('/usulan', [UsulanController::class, 'index'])->name('usulan.index');
-        Route::get('/usulan/create/{id_pengumuman}', [UsulanController::class, 'create'])->name('usulan.create');
+        
+        // PERBAIKAN DILAKUKAN DI SINI: {id_pengumuman} dibuat opsional dengan menambahkan tanda tanya (?)
+        Route::get('/usulan/create/{id_pengumuman?}', [UsulanController::class, 'create'])->name('usulan.create'); 
+        
         Route::post('/usulan/store', [UsulanController::class, 'store'])->name('usulan.store');
         Route::get('/usulan/{id}', [UsulanController::class, 'show'])->name('usulan.show');
         Route::get('/usulan/{id}/edit', [UsulanController::class, 'edit'])->name('usulan.edit');
@@ -234,7 +245,7 @@ Route::middleware(['auth', 'role:dosen'])
 //// Pastikan ini ada di dalam blok Route::group() untuk 'dosen'
 
 // LAPORAN KEMAJUAN DOSEN (Manual Routes, Urutan Diperbaiki) 
-       // LAPORAN KEMAJUAN DOSEN (Diurutkan dari Spesifik ke Umum)
+        // LAPORAN KEMAJUAN DOSEN (Diurutkan dari Spesifik ke Umum)
 
 // 1. Rute Paling Spesifik (Memiliki kata kunci statis di path-nya, e.g., 'create', 'store')
 
@@ -264,7 +275,7 @@ Route::delete('/laporan-kemajuan/{id}', [LaporankemajuanDosenController::class, 
 
 // Rute ini bukan bagian dari Laporan Kemajuan, tapi biarkan saja di sini
 Route::get('/search', [UsulanController::class, 'search'])->name('search');
-       
+        
 
         Route::prefix('laporan-akhir')
     ->name('laporan_akhir.')
@@ -274,7 +285,7 @@ Route::get('/search', [UsulanController::class, 'search'])->name('search');
         Route::post('/{usulanId}/submit', [LaporanAkhirController::class, 'storeOrUpdate'])->name('submit');
     });
 
-       
+        
         
 
     });

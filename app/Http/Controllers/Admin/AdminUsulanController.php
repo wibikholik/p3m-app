@@ -199,18 +199,20 @@ class AdminUsulanController extends Controller
     }
 
     public function previewFile($filename)
-    {
-        $path = public_path('storage/usulan/' . $filename);
-        if (!file_exists($path)) abort(404, 'File tidak ditemukan.');
-        return response()->file($path);
-    }
+{
+    // Path disamakan dengan yang ada di view: storage/usulan_files/
+    $path = public_path('storage/usulan_files/' . $filename); 
+    if (!file_exists($path)) abort(404, 'File tidak ditemukan.');
+    return response()->file($path);
+}
 
-    public function downloadFile($filename)
-    {
-        $path = public_path('storage/usulan/' . $filename);
-        if (!file_exists($path)) abort(404, 'File tidak ditemukan.');
-        return response()->download($path);
-    }
+public function downloadFile($filename)
+{
+    // Path disamakan dengan yang ada di view: storage/usulan_files/
+    $path = public_path('storage/usulan_files/' . $filename); 
+    if (!file_exists($path)) abort(404, 'File tidak ditemukan.');
+    return response()->download($path);
+}
 
     public function verifikasi(Request $request, $id)
     {

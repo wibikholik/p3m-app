@@ -39,10 +39,11 @@ public function usulanReviewer()
                 ->withPivot(['status', 'assigned_at', 'deadline']);
 }
 
-    public function roles()
-    {
-        return $this->belongsToMany(Role::class,'role_user');
-    }
+   public function roles()
+{
+    // Asumsi: tabel pivot adalah 'role_user'
+    return $this->belongsToMany(\App\Models\Role::class, 'role_user', 'user_id', 'role_id'); 
+}
 
     /**
      * Cek apakah user punya role tertentu
@@ -73,6 +74,14 @@ public function isBlocked()
                 ->withPivot(['status', 'assigned_at', 'deadline', 'catatan_review'])
                 ->withTimestamps();
 }
+public function isReviewer(): bool
+{
+    // Asumsi ada kolom is_reviewer di DB
+    return (bool) $this->is_reviewer; 
+}
 
-
+public function isDosen(): bool
+{
+    return $this->role === 'dosen';
+}
 }

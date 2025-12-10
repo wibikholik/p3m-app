@@ -6,39 +6,27 @@
 @section('content')
 
 <style>
+    /* CSS Dasar untuk Layout Split */
     .split-container {
         display: grid;
-        grid-template-columns: 2fr 1fr;
+        grid-template-columns: 2fr 1fr; /* Pembagian 2/3 untuk File, 1/3 untuk Form */
         gap: 2rem;
-        height: calc(100vh - 200px);
-        overflow-y: hidden;
+        min-height: 80vh; 
+        overflow-y: hidden; /* Mencegah scroll ganda di body */
     }
     .file-viewer-wrapper {
-        overflow-y: scroll;
+        overflow-y: auto; 
         height: 100%;
         padding-right: 1.5rem;
     }
-    #pdf-viewer {
-        height: 850px;
-        overflow-y: scroll;
-        border: 1px solid #d1d5db;
-        background: #f8fafc;
-        padding: 10px;
-    }
-    canvas {
-        width: 100% !important;
-        margin-bottom: 10px;
-        border: 1px solid #e2e8f0;
-        border-radius: 4px;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-    }
     .sticky-form {
         position: sticky;
-        top: 1rem;
+        top: 1rem; /* Jaga agar form tetap di atas saat file discroll */
         align-self: flex-start;
         max-height: 100%;
         overflow-y: auto;
     }
+    /* Media Query untuk Mobile/Tablet */
     @media (max-width: 1024px) {
         .split-container {
             grid-template-columns: 1fr;
@@ -92,6 +80,7 @@
             'ditolak' => 'border-red-400 bg-red-50 text-red-700',
             'in_review' => 'border-purple-400 bg-purple-50 text-purple-700',
             'revisi' => 'border-orange-400 bg-orange-50 text-orange-700',
+            'ditolak_administrasi' => 'border-red-400 bg-red-50 text-red-700', 
         ];
         $class = $statusClasses[$status] ?? 'border-gray-400 bg-gray-50 text-gray-700';
     @endphp
@@ -160,41 +149,41 @@
     {{-- SPLIT SECTION --}}
     <div class="split-container">
 
-        {{-- LEFT: PDF VIEWER --}}
+        {{-- LEFT: FILE USULAN PREVIEW --}}
         <div class="file-viewer-wrapper">
 
-            @php
-                $filename = $usulan->file_usulan;
-                $path = $filename ? asset('storage/usulan_files/' . $filename) : null;
-                $isPdf = $filename && strtolower(pathinfo($filename, PATHINFO_EXTENSION)) === 'pdf';
-            @endphp
-
-            @if ($filename && $isPdf)
-                <div class="bg-white shadow rounded border border-gray-200 mb-6">
-                    <div class="px-4 py-3 bg-gray-100 border-b">
-                        <h3 class="text-lg font-medium text-gray-900">Preview: {{ $filename }}</h3>
+            <div class="flex-grow flex flex-col bg-white shadow rounded border border-gray-200 p-4 h-full">
+                <h3 class="text-lg font-semibold mt-0 mb-2">File Usulan (Preview)</h3>
+                
+                @if($usulan->file_usulan)
+                    {{-- 
+                        PATH REVISI: Menggunakan asset('storage/') + path dari DB.
+                        Jika $usulan->file_usulan berisi 'usulan_files/nama.pdf',
+                        maka hasilnya adalah asset('storage/usulan_files/nama.pdf').
+                    --}}
+                    <iframe 
+                        src="{{ asset('storage/' . $usulan->file_usulan) }}" 
+                        class="w-full flex-grow" 
+                        style="min-height: 800px; border: 1px solid #d1d5db;" 
+                        frameborder="0"
+                    ></iframe>
+                    
+                    <a href="{{ asset('storage/' . $usulan->file_usulan) }}" 
+                       target="_blank" 
+                       class="mt-4 text-blue-600 hover:underline block text-center"
+                       download>
+                        Unduh File Usulan
+                    </a>
+                @else
+                    <div class="text-gray-500 py-10 flex-grow flex items-center justify-center border rounded min-h-[500px]">
+                        File usulan belum diunggah.
                     </div>
-
-                    <div id="pdf-viewer"></div>
-
-                    <div class="px-4 py-3 border-t bg-gray-50 text-right">
-                        <a href="{{ route('admin.usulan.download_file', $filename) }}"
-                           class="px-3 py-2 border border-blue-300 rounded text-blue-700 text-sm hover:bg-blue-50 shadow-sm"
-                           download>Unduh File Asli</a>
-                    </div>
-                </div>
-            @elseif ($filename)
-                <div class="p-4 bg-yellow-50 border text-yellow-600 rounded">
-                    File tidak dapat dipreview. Unduh
-                    <a class="font-semibold underline" href="{{ route('admin.usulan.download_file', $filename) }}">di sini</a>.
-                </div>
-            @else
-                <div class="p-4 bg-red-50 border text-red-600 rounded">File usulan belum diunggah.</div>
-            @endif
+                @endif
+            </div>
 
         </div>
 
-        {{-- RIGHT: FORM --}}
+        {{-- RIGHT: FORM VERIFIKASI --}}
         <div class="sticky-form">
 
             @if ($usulan->status == 'diajukan')
@@ -207,7 +196,7 @@
                         @csrf
                         @method('PUT')
 
-                        <h3 class="text-lg font-semibold mb-4 text-gray-700">Checklist:</h3>
+                        <h3 class="text-lg font-semibold mb-4 text-gray-700">Checklist Kelengkapan:</h3>
 
                         @foreach ($masterKelengkapan as $item)
                             @php
@@ -216,18 +205,19 @@
 
                             <label class="flex items-center mb-2">
                                 <input type="checkbox" name="checklist[]" value="{{ $item->id }}"
-                                       class="h-4 w-4 text-indigo-600 rounded"
-                                       {{ $checked ? 'checked' : '' }}>
+                                        class="h-4 w-4 text-indigo-600 rounded"
+                                        {{ $checked ? 'checked' : '' }}>
                                 <span class="ml-2">{{ $item->nama }}</span>
                             </label>
                         @endforeach
 
-                        <label class="block mt-4 text-sm font-medium">Catatan Admin (Jika ditolak)</label>
-                        <textarea name="catatan_admin" class="w-full border rounded p-2"></textarea>
+                        <label class="block mt-4 text-sm font-medium">Catatan Admin (Jika ditolak/perlu klarifikasi)</label>
+                        <textarea name="catatan_admin" class="w-full border rounded p-2">{{ old('catatan_admin', $usulan->catatan_admin) }}</textarea>
 
                         <div class="flex justify-end mt-4 gap-3 pt-4 border-t">
                             <button name="action" value="reject"
-                                class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+                                class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                                onclick="return confirm('Anda yakin menolak usulan ini? Pastikan Catatan Admin terisi jika ditolak.')">
                                 Tolak
                             </button>
                             <button name="action" value="approve"
@@ -239,8 +229,9 @@
                 </div>
             @else
                 <div class="bg-white shadow rounded border p-6 text-center">
-                    Proposal sudah diverifikasi.
-                    <a class="block text-indigo-600 mt-2" href="{{ route('admin.usulan.index') }}">Kembali</a>
+                    <h3 class="text-xl font-bold mb-2">Verifikasi Selesai</h3>
+                    <p>Proposal sudah diverifikasi dan berstatus **{{ str_replace('_', ' ', ucfirst($usulan->status)) }}**.</p>
+                    <a class="block text-indigo-600 mt-4 font-medium" href="{{ route('admin.usulan.index') }}">Kembali ke Daftar Usulan</a>
                 </div>
             @endif
 
@@ -248,41 +239,5 @@
     </div>
 
 </div>
-
-{{-- PDF.js --}}
-<script src="{{ asset('pdfjs/build/pdf') }}"></script>
-
-@if ($isPdf)
-<script>
-    const url = "{{ $path }}";
-
-    const pdfjsLib = window['pdfjsLib'];
-
-    pdfjsLib.GlobalWorkerOptions.workerSrc = "{{ asset('pdfjs/build/pdf.worker') }}";
-
-    pdfjsLib.getDocument(url).promise.then(pdf => {
-        const viewer = document.getElementById('pdf-viewer');
-
-        for (let page = 1; page <= pdf.numPages; page++) {
-            pdf.getPage(page).then(p => {
-                const canvas = document.createElement("canvas");
-                viewer.appendChild(canvas);
-
-                const ctx = canvas.getContext("2d");
-                const viewport = p.getViewport({ scale: 1.2 });
-
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-
-                p.render({
-                    canvasContext: ctx,
-                    viewport: viewport
-                });
-            });
-        }
-    });
-</script>
-@endif
-
 
 @endsection

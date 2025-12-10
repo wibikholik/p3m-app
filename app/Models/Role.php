@@ -18,8 +18,8 @@ class Role extends Model
     /**
      * Relasi many-to-many ke User
      */
-    public function users()
-    {
-        return $this->belongsToMany(User::class);
-    }
+   public function users()
+{
+    return $this->belongsToMany(\App\Models\User::class, 'role_user', 'role_id', 'user_id');
+}
 }

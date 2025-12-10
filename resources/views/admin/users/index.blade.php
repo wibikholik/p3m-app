@@ -3,17 +3,15 @@
 @section('title', 'Manajemen Pengguna - Admin P3M')
 
 @section('content')
-    <!-- Header Halaman -->
     <div class="flex justify-between items-center mb-8">
         <h2 class="text-3xl font-extrabold text-gray-900">Manajemen Pengguna</h2>
         <a href="{{ route('admin.users.create') }}"
            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300">
-            <svg class="w-5 h-5 mr-2 -ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+             <svg class="w-5 h-5 mr-2 -ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
             Tambah Pengguna
         </a>
     </div>
 
-    <!-- Notifikasi -->
     @if (session('success'))
         <div class="mb-6 flex items-center justify-between bg-green-50 border border-green-300 text-green-800 px-6 py-4 rounded-lg shadow-sm" role="alert">
             <div class="flex items-center space-x-3">
@@ -36,7 +34,6 @@
         </div>
     @endif
 
-    <!-- Tabel Data Pengguna -->
     <div class="bg-white shadow-xl rounded-xl overflow-hidden">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
@@ -56,9 +53,31 @@
                             <td class="py-4 px-6 whitespace-nowrap text-sm text-gray-900">{{ $loop->iteration + $users->firstItem() - 1 }}</td>
                             <td class="py-4 px-6 whitespace-nowrap text-sm font-medium text-gray-800">{{ $user->name }}</td>
                             <td class="py-4 px-6 whitespace-nowrap text-sm text-gray-600">{{ $user->email }}</td>
+                            
+                            {{-- KOLOM ROLE (MENGGUNAKAN RELASI) --}}
                             <td class="py-4 px-6 whitespace-nowrap text-sm text-gray-600">
-                                <span class="font-semibold">{{ ucfirst($user->role) }}</span>
+                                <div class="flex flex-wrap gap-1">
+                                    @forelse ($user->roles as $role)
+                                        @php
+                                            $roleName = strtolower($role->name);
+                                            $color = [
+                                                'admin' => 'bg-purple-100 text-purple-800',
+                                                'reviewer' => 'bg-yellow-100 text-yellow-800',
+                                                'dosen' => 'bg-indigo-100 text-indigo-800',
+                                                'mahasiswa' => 'bg-blue-100 text-blue-800', // Asumsi ada role mahasiswa
+                                            ];
+                                            $roleClass = $color[$roleName] ?? 'bg-gray-100 text-gray-800';
+                                        @endphp
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold {{ $roleClass }}">
+                                            {{ ucfirst($role->display_name ?? $role->name) }}
+                                        </span>
+                                    @empty
+                                        <span class="text-sm italic text-red-500">Tidak ada Role</span>
+                                    @endforelse
+                                </div>
                             </td>
+                            
+                            {{-- KOLOM STATUS AKUN (Menggunakan isBlocked()) --}}
                             <td class="py-4 px-6 whitespace-nowrap text-sm">
                                 @if ($user->isBlocked())
                                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">
@@ -70,6 +89,8 @@
                                     </span>
                                 @endif
                             </td>
+                            
+                            {{-- KOLOM AKSI --}}
                             <td class="py-4 px-6 whitespace-nowrap text-sm font-medium">
                                 <div class="flex items-center space-x-2">
                                     {{-- Tombol Edit --}}
@@ -79,11 +100,44 @@
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-9-5l7-7m-7 7l-2 2m7-7l-2 2m-2-2L15 7"></path></svg>
                                     </a>
 
+                                    {{-- Tombol Kelola Reviewer (Hanya untuk Dosen) --}}
+                                    @if ($user->hasRole('dosen'))
+                                        @if ($user->hasRole('reviewer'))
+                                            {{-- Tombol Hapus Role Reviewer --}}
+                                            <form action="{{ route('admin.users.remove_reviewer', $user) }}" method="POST"
+                                                onsubmit="return confirm('Anda yakin ingin MENGHAPUS peran Reviewer dari dosen ini?');">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit"
+                                                        class="text-yellow-600 hover:text-yellow-900 transition duration-300 p-2 rounded-full hover:bg-yellow-50"
+                                                        title="Hapus Reviewer">
+                                                    {{-- Icon: User Minus Reviewer --}}
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM3 21a6 6 0 0112 0M17 9h6M17 15h6"></path></svg>
+                                                </button>
+                                            </form>
+                                        @else
+                                            {{-- Tombol Jadikan Reviewer --}}
+                                            <form action="{{ route('admin.users.assign_reviewer', $user) }}" method="POST"
+                                                onsubmit="return confirm('Anda yakin ingin MENAMBAHKAN peran Reviewer kepada dosen ini?');">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit"
+                                                        class="text-teal-600 hover:text-teal-900 transition duration-300 p-2 rounded-full hover:bg-teal-50"
+                                                        title="Jadikan Reviewer">
+                                                    {{-- Icon: User Plus Reviewer --}}
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg>
+                                                </button>
+                                            </form>
+                                        @endif
+                                    @endif
+
                                     {{-- Tombol Block/Unblock --}}
                                     @if ($user->isBlocked())
+                                        {{-- ... (sama seperti sebelumnya, pastikan method PATCH) ... --}}
                                         <form action="{{ route('admin.users.unblock', $user) }}" method="POST"
                                               onsubmit="return confirm('Anda yakin ingin membuka blokir user ini?');">
                                             @csrf
+                                            @method('PATCH')
                                             <button type="submit"
                                                     class="text-green-600 hover:text-green-900 transition duration-300 p-2 rounded-full hover:bg-green-50"
                                                     title="Unblock">
@@ -94,6 +148,7 @@
                                         <form action="{{ route('admin.users.block', $user) }}" method="POST"
                                               onsubmit="return confirm('Anda yakin ingin memblokir user ini?');">
                                             @csrf
+                                            @method('PATCH')
                                             <button type="submit"
                                                     class="text-orange-600 hover:text-orange-900 transition duration-300 p-2 rounded-full hover:bg-orange-50"
                                                     title="Block">
@@ -127,8 +182,7 @@
             </table>
         </div>
 
-        <!-- Paginasi -->
-        <div class="mt-6">
+        <div class="p-4">
             {{ $users->links() }}
         </div>
     </div>

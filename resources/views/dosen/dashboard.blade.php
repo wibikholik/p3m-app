@@ -61,7 +61,7 @@
             $lineColor = 'bg-blue-500'; // Ada progres, garis biru
         }
         
-        if (in_array($currentStatus, ['Diterima', 'Sedang Berjalan'])) {
+        if (in_array($currentStatus, ['Diterima', 'Sedang Berjalan','Selesai'])) {
             $lineColor = 'bg-green-500'; // Status sukses, garis hijau
         }
 
